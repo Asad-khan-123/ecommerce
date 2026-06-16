@@ -110,3 +110,57 @@ export const uploadApi = {
     return handleResponse(response);
   }
 };
+
+// Product APIs
+export const productApi = {
+  getProducts: async (filters: { menuItem?: string; columnId?: string; subMenuItemId?: string; page?: number; limit?: number } = {}) => {
+    const params = new URLSearchParams();
+    if (filters.menuItem) params.append('menuItem', filters.menuItem);
+    if (filters.columnId) params.append('columnId', filters.columnId);
+    if (filters.subMenuItemId) params.append('subMenuItemId', filters.subMenuItemId);
+    if (filters.page) params.append('page', String(filters.page));
+    if (filters.limit) params.append('limit', String(filters.limit));
+    
+    const query = params.toString() ? `?${params.toString()}` : '';
+    const response = await fetch(`${API_BASE_URL}/products${query}`);
+    return handleResponse(response);
+  },
+
+  getProductBySlug: async (slug: string) => {
+    const response = await fetch(`${API_BASE_URL}/products/slug/${slug}`);
+    return handleResponse(response);
+  },
+
+  getAllProductsAdmin: async () => {
+    const response = await fetch(`${API_BASE_URL}/products/admin/all`, {
+      headers: getHeaders()
+    });
+    return handleResponse(response);
+  },
+
+  createProduct: async (data: any) => {
+    const response = await fetch(`${API_BASE_URL}/products/admin`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(data)
+    });
+    return handleResponse(response);
+  },
+
+  updateProduct: async (id: string, data: any) => {
+    const response = await fetch(`${API_BASE_URL}/products/admin/${id}`, {
+      method: 'PUT',
+      headers: getHeaders(),
+      body: JSON.stringify(data)
+    });
+    return handleResponse(response);
+  },
+
+  deleteProduct: async (id: string) => {
+    const response = await fetch(`${API_BASE_URL}/products/admin/${id}`, {
+      method: 'DELETE',
+      headers: getHeaders()
+    });
+    return handleResponse(response);
+  }
+};

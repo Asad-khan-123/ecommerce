@@ -43,8 +43,8 @@ const NewsletterWithAnnouncement = () => {
 
       {/* Join the Tribe Newsletter */}
       <div className="w-full bg-[#F9F9F9]">
-        <div className="mx-auto max-w-[860px] px-4 py-12 text-center">
-
+        <div className="mx-auto max-w-[860px] px-4 pt-12 pb-20 text-center">
+          
           {/* Heading */}
           <h2 className="mb-4 text- font-normal text-[#212121]">
             Join the Tribe

@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
 import { menuApi } from '../utils/api';
 import { User, Search, ShoppingBag, Menu, X } from 'lucide-react';
+import { CartDrawer } from './CartDrawer';
 
 interface MenuItemData {
   _id: string;
@@ -30,6 +32,7 @@ interface Image {
 
 const Navbar = () => {
   const { user } = useAuth();
+  const { cartCount, setCartOpen } = useCart();
   const [menuItems, setMenuItems] = useState<MenuItemData[]>([]);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -194,9 +197,18 @@ const Navbar = () => {
             <Link to="/account" aria-label="Account">
               <User size={18} strokeWidth={1.5} className="text-[#212121]" />
             </Link>
-            <Link to="/cart" aria-label="Cart">
+            <button
+              onClick={() => setCartOpen(true)}
+              className="relative p-1 -m-1 transition-opacity hover:opacity-75"
+              aria-label={`Cart, ${cartCount} items`}
+            >
               <ShoppingBag size={18} strokeWidth={1.5} className="text-[#212121]" />
-            </Link>
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#212121] text-[8px] font-bold text-white">
+                  {cartCount}
+                </span>
+              )}
+            </button>
             {user && user.role === 'admin' && (
               <Link to="/admin" className="ml-2 rounded bg-[#212121] px-3 py-1 text-[12px] text-white hover:bg-gray-800">
                 Admin
@@ -247,6 +259,8 @@ const Navbar = () => {
           </nav>
         </div>
       )}
+      {/* Cart Drawer Panel */}
+      <CartDrawer />
     </header>
   );
 };

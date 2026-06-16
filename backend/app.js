@@ -6,6 +6,7 @@ import connectDb from './utils/db.js';
 import authRoutes from './routes/auth.js';
 import menuRoutes from './routes/menu.js';
 import uploadRoutes from './routes/upload.js';
+import productRoutes from './routes/product.js';
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.use(cookieParser());
 app.use('/api/auth', authRoutes);
 app.use('/api/menu', menuRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/products', productRoutes);
 
 app.get('/', (req, res) => {
   res.send('E-commerce API Server');
