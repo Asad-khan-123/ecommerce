@@ -13,6 +13,9 @@ import Pdp from './pages/Pdp';
 import Dashboard from './pages/admin/Dashboard';
 import { MenuManager } from './pages/admin/MenuManager';
 import { ProductManager } from './pages/admin/ProductManager';
+import Checkout from './pages/Checkout';
+import OrderSuccess from './pages/OrderSuccess';
+import { OrderManager } from './pages/admin/OrderManager';
 
 /* Shared layout for all public-facing pages: Navbar + content + Newsletter + Footer */
 const PublicLayout = () => (
@@ -49,12 +52,15 @@ function App() {
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="menu" element={<MenuManager />} />
                 <Route path="products" element={<ProductManager />} />
+                <Route path="orders" element={<OrderManager />} />
               </Route>
 
               {/* Public Routes — all share Navbar + Footer */}
               <Route element={<PublicLayout />}>
                 <Route path="/" element={<Home />} />
                 <Route path="/products/:slug" element={<Pdp />} />
+                <Route path="/checkout" element={<Checkout />} />
+                <Route path="/order-success/:id" element={<OrderSuccess />} />
                 {/* Future pages go here, e.g.: */}
                 {/* <Route path="/collections/:slug" element={<CollectionPage />} /> */}
                 {/* <Route path="/account" element={<Account />} /> */}

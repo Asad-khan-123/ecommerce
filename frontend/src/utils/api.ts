@@ -164,3 +164,99 @@ export const productApi = {
     return handleResponse(response);
   }
 };
+
+// Cart APIs
+export const cartApi = {
+  getCart: async () => {
+    const response = await fetch(`${API_BASE_URL}/cart`, {
+      headers: getHeaders()
+    });
+    return handleResponse(response);
+  },
+
+  addToCart: async (data: { productId: string; size: string; color: string; quantity: number }) => {
+    const response = await fetch(`${API_BASE_URL}/cart`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(data)
+    });
+    return handleResponse(response);
+  },
+
+  updateQuantity: async (data: { productId: string; size: string; color: string; quantity: number }) => {
+    const response = await fetch(`${API_BASE_URL}/cart`, {
+      method: 'PUT',
+      headers: getHeaders(),
+      body: JSON.stringify(data)
+    });
+    return handleResponse(response);
+  },
+
+  removeFromCart: async (data: { productId: string; size: string; color: string }) => {
+    const response = await fetch(`${API_BASE_URL}/cart/remove`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(data)
+    });
+    return handleResponse(response);
+  },
+
+  clearCart: async () => {
+    const response = await fetch(`${API_BASE_URL}/cart/clear`, {
+      method: 'DELETE',
+      headers: getHeaders()
+    });
+    return handleResponse(response);
+  }
+};
+
+// Order APIs
+export const orderApi = {
+  createOrder: async (data: any) => {
+    const response = await fetch(`${API_BASE_URL}/orders`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(data)
+    });
+    return handleResponse(response);
+  },
+
+  getMyOrders: async () => {
+    const response = await fetch(`${API_BASE_URL}/orders/my`, {
+      headers: getHeaders()
+    });
+    return handleResponse(response);
+  },
+
+  getOrderById: async (id: string) => {
+    const response = await fetch(`${API_BASE_URL}/orders/${id}`, {
+      headers: getHeaders()
+    });
+    return handleResponse(response);
+  },
+
+  getAllOrdersAdmin: async () => {
+    const response = await fetch(`${API_BASE_URL}/orders/admin/all`, {
+      headers: getHeaders()
+    });
+    return handleResponse(response);
+  },
+
+  updateOrderStatus: async (id: string, orderStatus: string) => {
+    const response = await fetch(`${API_BASE_URL}/orders/admin/${id}/status`, {
+      method: 'PUT',
+      headers: getHeaders(),
+      body: JSON.stringify({ orderStatus })
+    });
+    return handleResponse(response);
+  },
+
+  updatePaymentStatus: async (id: string, paymentStatus: string) => {
+    const response = await fetch(`${API_BASE_URL}/orders/admin/${id}/payment`, {
+      method: 'PUT',
+      headers: getHeaders(),
+      body: JSON.stringify({ paymentStatus })
+    });
+    return handleResponse(response);
+  }
+};

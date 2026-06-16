@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
+import { useAuth } from './AuthContext';
+import { cartApi } from '../utils/api';
 
 export interface CartItem {
   _id: string; // Product ID
@@ -25,11 +27,27 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
+// Helper function to map populated backend cart structure to frontend flat CartItem structure
+const mapBackendCartToFrontend = (backendCart: any): CartItem[] => {
+  if (!backendCart || !backendCart.items) return [];
+  return backendCart.items.map((item: any) => ({
+    _id: item.product?._id || '',
+    title: item.product?.title || 'Unknown Product',
+    slug: item.product?.slug || '',
+    price: item.product?.price || 0,
+    image: item.product?.images?.[0] || '',
+    size: item.size,
+    color: item.color,
+    quantity: item.quantity
+  }));
+};
+
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setCartOpen] = useState(false);
+  const { token } = useAuth();
 
-  // Load cart items from localStorage on mount
+  // Load cached cart items from localStorage on mount (for instant UI display on refresh)
   useEffect(() => {
     try {
       const savedCart = localStorage.getItem('cartItems');
@@ -41,7 +59,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  // Save cart items to localStorage on every change
+  // Save cart items to localStorage on every change (cache mechanism)
   useEffect(() => {
     try {
       localStorage.setItem('cartItems', JSON.stringify(cartItems));
@@ -50,54 +68,129 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [cartItems]);
 
-  const addToCart = (newItem: Omit<CartItem, 'quantity'> & { quantity?: number }) => {
-    const qtyToAdd = newItem.quantity ?? 1;
-    setCartItems((prevItems) => {
-      const existingItemIndex = prevItems.findIndex(
-        (item) =>
-          item._id === newItem._id &&
-          item.size === newItem.size &&
-          item.color === newItem.color
-      );
-
-      if (existingItemIndex > -1) {
-        // Increment quantity of existing item variant
-        const updatedItems = [...prevItems];
-        updatedItems[existingItemIndex].quantity += qtyToAdd;
-        return updatedItems;
+  // Sync cart items with backend database on login status change
+  useEffect(() => {
+    const fetchCart = async () => {
+      if (token) {
+        try {
+          const res = await cartApi.getCart();
+          if (res.success && res.data) {
+            setCartItems(mapBackendCartToFrontend(res.data));
+          }
+        } catch (error) {
+          console.error('Failed to fetch cart from database:', error);
+        }
       } else {
-        // Add as a new item variant
-        return [...prevItems, { ...newItem, quantity: qtyToAdd }];
+        setCartItems([]);
       }
-    });
-    // Auto-open drawer when an item is added
+    };
+
+    fetchCart();
+  }, [token]);
+
+  const addToCart = async (newItem: Omit<CartItem, 'quantity'> & { quantity?: number }) => {
+    const qtyToAdd = newItem.quantity ?? 1;
+    // Auto-open drawer when adding
     setCartOpen(true);
+
+    if (token) {
+      try {
+        const res = await cartApi.addToCart({
+          productId: newItem._id,
+          size: newItem.size,
+          color: newItem.color,
+          quantity: qtyToAdd
+        });
+        if (res.success && res.data) {
+          setCartItems(mapBackendCartToFrontend(res.data));
+        }
+      } catch (error) {
+        console.error('Failed to add to cart on backend:', error);
+      }
+    } else {
+      // Local fallback (though gated, useful for testing or robust handling)
+      setCartItems((prevItems) => {
+        const existingItemIndex = prevItems.findIndex(
+          (item) =>
+            item._id === newItem._id &&
+            item.size === newItem.size &&
+            item.color === newItem.color
+        );
+
+        if (existingItemIndex > -1) {
+          const updatedItems = [...prevItems];
+          updatedItems[existingItemIndex].quantity += qtyToAdd;
+          return updatedItems;
+        } else {
+          return [...prevItems, { ...newItem, quantity: qtyToAdd }];
+        }
+      });
+    }
   };
 
-  const removeFromCart = (id: string, size: string, color: string) => {
-    setCartItems((prevItems) =>
-      prevItems.filter(
-        (item) => !(item._id === id && item.size === size && item.color === color)
-      )
-    );
+  const removeFromCart = async (id: string, size: string, color: string) => {
+    if (token) {
+      try {
+        const res = await cartApi.removeFromCart({ productId: id, size, color });
+        if (res.success && res.data) {
+          setCartItems(mapBackendCartToFrontend(res.data));
+        }
+      } catch (error) {
+        console.error('Failed to remove from cart on backend:', error);
+      }
+    } else {
+      setCartItems((prevItems) =>
+        prevItems.filter(
+          (item) => !(item._id === id && item.size === size && item.color === color)
+        )
+      );
+    }
   };
 
-  const updateQuantity = (id: string, size: string, color: string, qty: number) => {
+  const updateQuantity = async (id: string, size: string, color: string, qty: number) => {
     if (qty <= 0) {
       removeFromCart(id, size, color);
       return;
     }
-    setCartItems((prevItems) =>
-      prevItems.map((item) =>
-        item._id === id && item.size === size && item.color === color
-          ? { ...item, quantity: qty }
-          : item
-      )
-    );
+
+    if (token) {
+      try {
+        const res = await cartApi.updateQuantity({
+          productId: id,
+          size,
+          color,
+          quantity: qty
+        });
+        if (res.success && res.data) {
+          setCartItems(mapBackendCartToFrontend(res.data));
+        }
+      } catch (error) {
+        console.error('Failed to update quantity on backend:', error);
+      }
+    } else {
+      setCartItems((prevItems) =>
+        prevItems.map((item) =>
+          item._id === id && item.size === size && item.color === color
+            ? { ...item, quantity: qty }
+            : item
+        )
+      );
+    }
   };
 
-  const clearCart = () => {
-    setCartItems([]);
+  const clearCart = async () => {
+    if (token) {
+      try {
+        const res = await cartApi.clearCart();
+        if (res.success) {
+          setCartItems([]);
+        }
+      } catch (error) {
+        console.error('Failed to clear cart on backend:', error);
+      }
+    } else {
+      setCartItems([]);
+    }
   };
 
   // Memoize counts and subtotals to avoid redundant calculations

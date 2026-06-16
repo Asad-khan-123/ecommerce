@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { authApi } from '../utils/api';
 
@@ -18,6 +18,7 @@ declare global {
 
 export const Login: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login, user } = useAuth();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -25,9 +26,11 @@ export const Login: React.FC = () => {
   // Redirect if already logged in
   useEffect(() => {
     if (user) {
-      navigate(user.role === 'admin' ? '/admin' : '/');
+      const searchParams = new URLSearchParams(location.search);
+      const redirectUrl = searchParams.get('redirect') || (user.role === 'admin' ? '/admin' : '/');
+      navigate(redirectUrl);
     }
-  }, [user, navigate]);
+  }, [user, navigate, location]);
 
   useEffect(() => {
     // Load Google Script
@@ -67,7 +70,9 @@ export const Login: React.FC = () => {
 
       if (result.success) {
         login(result.token, result.user);
-        navigate(result.user.role === 'admin' ? '/admin' : '/');
+        const searchParams = new URLSearchParams(location.search);
+        const redirectUrl = searchParams.get('redirect') || (result.user.role === 'admin' ? '/admin' : '/');
+        navigate(redirectUrl);
       } else {
         setError(result.message || 'Login failed');
       }

@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { X, Minus, Plus } from 'lucide-react';
 
 export const CartDrawer: React.FC = () => {
+  const navigate = useNavigate();
   const {
     cartItems,
     isCartOpen,
@@ -13,14 +14,9 @@ export const CartDrawer: React.FC = () => {
     cartSubtotal,
   } = useCart();
 
-  const [checkoutStatus, setCheckoutStatus] = useState<string | null>(null);
-
   const handleCheckoutClick = () => {
-    setCheckoutStatus('Processing...');
-    setTimeout(() => {
-      setCheckoutStatus('Checkout functionality is coming soon!');
-      setTimeout(() => setCheckoutStatus(null), 4000);
-    }, 1200);
+    setCartOpen(false);
+    navigate('/checkout?source=cart');
   };
 
   return (
@@ -166,20 +162,12 @@ export const CartDrawer: React.FC = () => {
               Shipping & taxes calculated at checkout.
             </p>
 
-            {/* Checkout status / error message */}
-            {checkoutStatus && (
-              <div className="text-[11px] text-center font-light tracking-wide py-1 text-amber-700 bg-amber-50 border border-amber-200/50 rounded-sm">
-                {checkoutStatus}
-              </div>
-            )}
-
             {/* Checkout Button */}
             <button
               onClick={handleCheckoutClick}
-              disabled={checkoutStatus === 'Processing...'}
-              className="w-full bg-[#212121] text-white py-3.5 text-[11px] font-medium tracking-[0.25em] uppercase hover:bg-black transition-colors duration-200 text-center block disabled:opacity-75"
+              className="w-full bg-[#212121] text-white py-3.5 text-[11px] font-medium tracking-[0.25em] uppercase hover:bg-black transition-colors duration-200 text-center block"
             >
-              {checkoutStatus === 'Processing...' ? 'Processing...' : 'Proceed to Checkout'}
+              Proceed to Checkout
             </button>
           </div>
         )}

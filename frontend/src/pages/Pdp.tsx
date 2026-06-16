@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ChevronDown, Minus, Plus, ArrowLeft } from 'lucide-react';
 import { useProducts } from '../context/ProductContext';
 import type { Product } from '../context/ProductContext';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import ProductCard from '../components/ProductCard';
+import RecentlyViewed from '../components/RecentlyViewed';
 
 /* ─────────────────────────────────────────────────────────────
    Accordion Item
@@ -82,6 +84,9 @@ const Pdp = () => {
   const { fetchProductBySlug, products, fetchProducts } = useProducts();
 
   const { addToCart } = useCart();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
   const [product, setProduct] = useState<Product | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [selectedSize, setSelectedSize] = useState('');
@@ -132,6 +137,29 @@ const Pdp = () => {
     }
   }, [product, products]);
 
+  /* Recently Viewed products tracking */
+  useEffect(() => {
+    if (!product) return;
+
+    try {
+      const savedRecentlyViewed = localStorage.getItem('recentlyViewed');
+      let list: Product[] = savedRecentlyViewed ? JSON.parse(savedRecentlyViewed) : [];
+
+      // Filter out current product to avoid duplicates
+      list = list.filter((p) => p._id !== product._id);
+
+      // Prepend current product
+      list.unshift(product);
+
+      // Truncate to maximum 5 items
+      list = list.slice(0, 5);
+
+      localStorage.setItem('recentlyViewed', JSON.stringify(list));
+    } catch (error) {
+      console.error('Failed to update recently viewed list:', error);
+    }
+  }, [product]);
+
   const accordionData: AccordionItem[] = [
     {
       title: 'Fabric & Materials',
@@ -150,12 +178,18 @@ const Pdp = () => {
     {
       title: 'Shipping & Returns',
       content:
-        'Free shipping on orders over $150. Returns accepted within 14 days of delivery in original condition. See our full returns policy for details.',
+        'Free shipping on orders over ₹2,000. Rs. 150 shipping fee otherwise. Returns accepted within 14 days of delivery in original condition. See our full returns policy for details.',
     },
   ];
 
   const handleAddToCart = () => {
     if (!product) return;
+
+    if (!user) {
+      // Must be logged in to add to cart
+      navigate(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
+      return;
+    }
 
     if (product.sizes && product.sizes.length > 0 && !selectedSize) {
       setValidationError('Please select a size');
@@ -176,6 +210,23 @@ const Pdp = () => {
 
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 2000);
+  };
+
+  const handleBuyNow = () => {
+    if (!product) return;
+
+    if (!user) {
+      navigate(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
+      return;
+    }
+
+    if (product.sizes && product.sizes.length > 0 && !selectedSize) {
+      setValidationError('Please select a size to proceed');
+      return;
+    }
+
+    setValidationError(null);
+    navigate(`/checkout?productId=${product.slug}&size=${encodeURIComponent(selectedSize)}&color=${encodeURIComponent(selectedColor || 'Default')}&qty=${quantity}`);
   };
 
   /* ── Not Found ── */
@@ -295,11 +346,11 @@ const Pdp = () => {
               {/* Price */}
               <div className="mt-3 flex items-baseline gap-3">
                 <span className="text-[16px] text-[#212121]">
-                  ${product.price.toFixed(2)}
+                  ₹ {product.price.toLocaleString('en-IN')}
                 </span>
                 {product.compareAtPrice && product.compareAtPrice > product.price && (
                   <span className="text-[14px] text-[#999] line-through">
-                    ${product.compareAtPrice.toFixed(2)}
+                    ₹ {product.compareAtPrice.toLocaleString('en-IN')}
                   </span>
                 )}
                 {discount && (
@@ -420,6 +471,16 @@ const Pdp = () => {
                   </button>
                 </div>
 
+                {/* Buy Now */}
+                {product.inStock && (
+                  <button
+                    onClick={handleBuyNow}
+                    className="w-full mt-3 border border-[#212121] py-3.5 text-[11px] tracking-[0.2em] uppercase text-[#212121] hover:bg-[#212121] hover:text-white transition-colors duration-200"
+                  >
+                    Buy Now
+                  </button>
+                )}
+
                 {/* WhatsApp Link */}
                 <p className="text-[11px] text-[#999]">
                   Need a tailored fit?{' '}
@@ -524,6 +585,9 @@ const Pdp = () => {
           </div>
         </div>
       )}
+
+      {/* Recently Viewed Products */}
+      <RecentlyViewed currentProductId={product._id} />
     </div>
   );
 };

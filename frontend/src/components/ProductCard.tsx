@@ -19,11 +19,8 @@ const ProductCard = ({ product }: ProductCardProps) => {
     ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
       : null;
 
-  const handleQuickAdd = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    // TODO: Add to cart logic
-    console.log('Quick add:', product._id);
+  const handleQuickAdd = () => {
+    // Allow event to bubble up to the parent Link tag so user navigates to PDP to select variants
   };
 
   return (
