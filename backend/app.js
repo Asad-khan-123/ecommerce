@@ -1,23 +1,43 @@
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import ENV from './utils/env.js';
+import connectDb from './utils/db.js';
+import authRoutes from './routes/auth.js';
+import menuRoutes from './routes/menu.js';
+import uploadRoutes from './routes/upload.js';
 
 const app = express();
+
+// Middleware
 app.use(cors({
-  origin: 'http://localhost:5173', // Replace with your frontend URL
+  origin: 'http://localhost:5173',
   credentials: true
-}))
+}));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb' }));
+app.use(cookieParser());
+
+// Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/menu', menuRoutes);
+app.use('/api/upload', uploadRoutes);
 
 app.get('/', (req, res) => {
-  res.send('Hello World!');
+  res.send('E-commerce API Server');
 });
 
-const PORT = ENV.PORT || 5000;
+const PORT = ENV.PORT || 8000;
 
-const server = () => {
-  app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-  });
+const server = async () => {
+  try {
+    await connectDb();
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.log("Error starting server", error);
+  }
 }
 
 server();
