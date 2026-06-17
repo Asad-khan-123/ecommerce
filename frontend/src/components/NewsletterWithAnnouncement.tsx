@@ -31,7 +31,7 @@ const NewsletterWithAnnouncement = () => {
       <div className="w-full overflow-hidden bg-[#1a1a1a] py-2.5">
         <div
           ref={scrollerRef}
-          className="flex w-max animate-scroll gap-x-12 text- text-white"
+          className="flex w-max animate-scroll gap-x-24 text- text-white"
         >
           {announcements.map((text, i) => (
             <span key={i} className="whitespace-nowrap">

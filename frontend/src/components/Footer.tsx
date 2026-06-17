@@ -34,7 +34,7 @@ const contactLinks: FooterLink[] = [
 const Footer = () => {
   return (
     <footer
-      className="w-full bg-[#F7F7F7] font-['Poppins'] text-[#212121] text-[14.4px] pt-[33px] pb-7"
+      className="w-full bg-[#F7F7F7] font-['Poppins'] text-[#212121] text-[14.4px] pt-[70px] pb-7"
       role="contentinfo"
     >
       <div className="mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8">

@@ -58,6 +58,11 @@ const productSchema = new mongoose.Schema({
     type: String,
     default: null
   },
+  tag: {
+    type: String,
+    trim: true,
+    default: null
+  },
   isActive: {
     type: Boolean,
     default: true

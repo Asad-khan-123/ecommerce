@@ -55,6 +55,7 @@ interface ProductData {
   subMenuItemId: string | null;
   isActive: boolean;
   createdAt: string;
+  tag?: string;
 }
 
 export const ProductManager: React.FC = () => {
@@ -77,7 +78,8 @@ export const ProductManager: React.FC = () => {
   const [images, setImages] = useState<string[]>([]);
   const [sizes, setSizes] = useState<string[]>([]);
   const [colors, setColors] = useState<string[]>([]);
-  
+  const [tag, setTag] = useState('');
+
   // Categorization Form State
   const [selectedMenuId, setSelectedMenuId] = useState('');
   const [selectedColumnId, setSelectedColumnId] = useState('');
@@ -141,6 +143,7 @@ export const ProductManager: React.FC = () => {
     setImages([]);
     setSizes(['Free Size']);
     setColors([]);
+    setTag('');
     setSelectedMenuId('');
     setSelectedColumnId('');
     setSelectedSubMenuId('');
@@ -161,12 +164,13 @@ export const ProductManager: React.FC = () => {
     setImages(product.images || []);
     setSizes(product.sizes || []);
     setColors(product.colors || []);
-    
+    setTag(product.tag || '');
+
     // Resolve categorization
-    const menuId = typeof product.menuItem === 'object' && product.menuItem 
-      ? product.menuItem._id 
+    const menuId = typeof product.menuItem === 'object' && product.menuItem
+      ? product.menuItem._id
       : (product.menuItem as string || '');
-      
+
     setSelectedMenuId(menuId);
     setSelectedColumnId(product.columnId || '');
     setSelectedSubMenuId(product.subMenuItemId || '');
@@ -263,7 +267,8 @@ export const ProductManager: React.FC = () => {
       inventory: isNaN(inventoryNum) ? 0 : inventoryNum,
       menuItem: selectedMenuId || null,
       columnId: selectedColumnId || null,
-      subMenuItemId: selectedSubMenuId || null
+      subMenuItemId: selectedSubMenuId || null,
+      tag: tag.trim() || null
     };
 
     setActionLoading(true);
@@ -335,8 +340,8 @@ export const ProductManager: React.FC = () => {
   // Resolve Names for table rendering
   const getMenuDetails = (product: ProductData) => {
     const menuObj = menuItems.find(m => {
-      const menuId = typeof product.menuItem === 'object' && product.menuItem 
-        ? product.menuItem._id 
+      const menuId = typeof product.menuItem === 'object' && product.menuItem
+        ? product.menuItem._id
         : product.menuItem;
       return m._id === menuId;
     });
@@ -344,7 +349,13 @@ export const ProductManager: React.FC = () => {
     if (!menuObj) return null;
 
     const columnObj = menuObj.columns?.find(c => c._id === product.columnId);
-    const subMenuItemObj = columnObj?.items?.find(i => i._id === product.subMenuItemId);
+
+    // Match subMenuItemId (which is now a slug) with the slug extracted from link
+    const subMenuItemObj = columnObj?.items?.find(i => {
+      const linkParts = i.link?.split('/').filter(Boolean);
+      const itemSlug = linkParts?.[linkParts.length - 1] || '';
+      return itemSlug === product.subMenuItemId;
+    });
 
     return {
       menuTitle: menuObj.title,
@@ -359,9 +370,9 @@ export const ProductManager: React.FC = () => {
 
   // Filter products by query & categories
   const filteredProducts = products.filter(p => {
-    const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          p.slug.toLowerCase().includes(searchQuery.toLowerCase());
-    
+    const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.slug.toLowerCase().includes(searchQuery.toLowerCase());
+
     const menuId = typeof p.menuItem === 'object' && p.menuItem ? p.menuItem._id : p.menuItem;
     const matchesMenuFilter = !menuFilter || menuId === menuFilter;
 
@@ -372,9 +383,8 @@ export const ProductManager: React.FC = () => {
     <div className="space-y-6 font-['Poppins']">
       {/* Toast Alert */}
       {toast && (
-        <div className={`fixed top-4 right-4 z-50 flex items-center px-6 py-3 rounded-lg shadow-xl text-white transition-all transform duration-300 ${
-          toast.type === 'error' ? 'bg-red-600' : 'bg-neutral-900'
-        }`}>
+        <div className={`fixed top-4 right-4 z-50 flex items-center px-6 py-3 rounded-lg shadow-xl text-white transition-all transform duration-300 ${toast.type === 'error' ? 'bg-red-600' : 'bg-neutral-900'
+          }`}>
           <span>{toast.message}</span>
         </div>
       )}
@@ -516,13 +526,12 @@ export const ProductManager: React.FC = () => {
 
                       <td className="py-4 px-6">
                         <div className="flex items-center gap-2">
-                          <span className={`w-2 h-2 rounded-full ${
-                            product.inventory > 5 
-                              ? 'bg-green-500' 
-                              : product.inventory > 0 
-                                ? 'bg-amber-500' 
-                                : 'bg-red-500'
-                          }`} />
+                          <span className={`w-2 h-2 rounded-full ${product.inventory > 5
+                            ? 'bg-green-500'
+                            : product.inventory > 0
+                              ? 'bg-amber-500'
+                              : 'bg-red-500'
+                            }`} />
                           <span className="font-medium text-gray-700">
                             {product.inventory} items
                           </span>
@@ -600,13 +609,13 @@ export const ProductManager: React.FC = () => {
 
               {/* Modal Form */}
               <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
-                
+
                 {/* 1. Basic Info */}
                 <div className="space-y-4">
                   <h3 className="text-xs font-semibold text-gray-450 uppercase tracking-wider border-b border-gray-100 pb-1.5">
                     Basic Info
                   </h3>
-                  
+
                   <div className="grid grid-cols-2 gap-4">
                     <div className="col-span-2">
                       <label className="block text-xs font-medium text-gray-700 mb-1">Product Title *</label>
@@ -631,6 +640,17 @@ export const ProductManager: React.FC = () => {
                         onChange={(e) => setSlug(e.target.value)}
                         placeholder="e.g. classic-silk-sari"
                         className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm font-mono focus:outline-none focus:ring-1 focus:ring-[#212121] focus:border-[#212121]"
+                      />
+                    </div>
+
+                    <div className="col-span-2">
+                      <label className="block text-xs font-medium text-gray-700 mb-1">Product Tag (e.g. New Season, Limited Edition)</label>
+                      <input
+                        type="text"
+                        value={tag}
+                        onChange={(e) => setTag(e.target.value)}
+                        placeholder="e.g. New Season"
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-[#212121] focus:border-[#212121]"
                       />
                     </div>
 
@@ -752,7 +772,7 @@ export const ProductManager: React.FC = () => {
                   <h3 className="text-xs font-semibold text-[#212121] uppercase tracking-wider flex items-center gap-1.5 pb-1">
                     <Layers size={14} className="text-gray-500" /> Catalog Categorization
                   </h3>
-                  
+
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     {/* Selector 1: Top-Level MenuItem */}
                     <div>
@@ -802,9 +822,14 @@ export const ProductManager: React.FC = () => {
                         className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-1 focus:ring-[#212121] disabled:bg-gray-100 disabled:opacity-60"
                       >
                         <option value="">-- Select Submenu --</option>
-                        {selectedColumn?.items?.map(sub => (
-                          <option key={sub._id} value={sub._id}>{sub.label}</option>
-                        ))}
+                        {selectedColumn?.items?.map(sub => {
+                          // Extract slug from link (e.g., "/shop/flora" -> "flora")
+                          const linkParts = sub.link?.split('/').filter(Boolean);
+                          const itemSlug = linkParts?.[linkParts.length - 1] || '';
+                          return (
+                            <option key={sub._id} value={itemSlug}>{sub.label}</option>
+                          );
+                        })}
                       </select>
                     </div>
                   </div>
@@ -830,11 +855,10 @@ export const ProductManager: React.FC = () => {
                             key={s}
                             type="button"
                             onClick={() => hasSize ? removeSize(s) : addSize(s)}
-                            className={`px-2 py-0.5 rounded text-[10px] font-medium border transition-colors ${
-                              hasSize
-                                ? 'bg-[#212121] text-white border-[#212121]'
-                                : 'bg-white text-gray-650 border-gray-200 hover:bg-gray-50'
-                            }`}
+                            className={`px-2 py-0.5 rounded text-[10px] font-medium border transition-colors ${hasSize
+                              ? 'bg-[#212121] text-white border-[#212121]'
+                              : 'bg-white text-gray-650 border-gray-200 hover:bg-gray-50'
+                              }`}
                           >
                             {s}
                           </button>

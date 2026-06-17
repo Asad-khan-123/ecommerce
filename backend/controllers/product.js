@@ -50,6 +50,7 @@ export const createProduct = async (req, res) => {
       menuItem: req.body.menuItem || null,
       columnId: req.body.columnId || null,
       subMenuItemId: req.body.subMenuItemId || null,
+      tag: req.body.tag || null,
       isActive: req.body.isActive !== false
     });
 
@@ -194,6 +195,7 @@ export const updateProduct = async (req, res) => {
     if (req.body.columnId !== undefined) product.columnId = req.body.columnId;
     if (req.body.subMenuItemId !== undefined) product.subMenuItemId = req.body.subMenuItemId;
     
+    if (req.body.tag !== undefined) product.tag = req.body.tag;
     if (req.body.isActive !== undefined) product.isActive = req.body.isActive;
 
     await product.save();

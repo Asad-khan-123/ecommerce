@@ -91,59 +91,86 @@ const Navbar = () => {
                     {menuItem.title}
                   </Link>
 
-                  {/* Mega Menu Dropdown */}
+                  {/* Mega Menu Dropdown - FULL HEIGHT FIX */}
                   {activeMenu === menuItem.slug && (
-                    <div className="fixed left-0 top-[60px] w-screen bg-[#F5F5F5] shadow-sm">
-                      <div className="mx-auto max-w-[1440px] px-8 py-10">
-                        <div className="grid grid-cols-4 gap-x-8">
+                    <div className="fixed left-0 top-[60px] w-screen bg-[#F5F5F5] h-[calc(85vh-60px)]">
+                      {/* h-[calc(100vh-60px)] = Navbar ke neeche se screen ke end tak */}
+                      <div className="mx-auto h-full max-w-[1440px]">
+                        <div className="grid h-full grid-cols-4 gap-0">
+                          {/* gap-0 = images ke beech 0 gap */}
 
                           {/* Column 1: First Column */}
                           {menuItem.columns?.[0] && (
-                            <div>
+                            <div className="px-8 py-10">
                               <h3 className="mb-4 text-[12px] font-medium text-[#212121]">
                                 {menuItem.columns[0].heading}
                               </h3>
                               <ul className="space-y-3">
-                                {menuItem.columns[0].items?.map((item, idx) => (
-                                  <li key={idx}>
-                                    <Link
-                                      to={item.link}
-                                      className="text-[12px] text-[#212121] hover:underline"
-                                    >
-                                      {item.label}
-                                    </Link>
-                                  </li>
-                                ))}
+                                {menuItem.columns[0].items?.map((item, idx) => {
+                                  // Build correct link: if link doesn't start with parent menu slug, prepend it
+                                  let fullLink = item.link || '';
+                                  if (!fullLink.startsWith('/')) {
+                                    fullLink = '/' + fullLink;
+                                  }
+                                  // If link is just one segment like "/flora", prepend menu slug
+                                  const linkParts = fullLink.split('/').filter(Boolean);
+                                  if (linkParts.length === 1) {
+                                    fullLink = `/${menuItem.slug}/${linkParts[0]}`;
+                                  }
+                                  return (
+                                    <li key={idx}>
+                                      <Link
+                                        to={fullLink}
+                                        className="text-[12px] text-[#212121] hover:underline"
+                                      >
+                                        {item.label}
+                                      </Link>
+                                    </li>
+                                  );
+                                })}
                               </ul>
                             </div>
                           )}
 
                           {/* Column 2: Second Column */}
                           {menuItem.columns?.[1] && (
-                            <div>
+                            <div className="px-8 py-10">
                               <h3 className="mb-4 text-[12px] font-medium text-[#212121]">
                                 {menuItem.columns[1].heading}
                               </h3>
                               <ul className="space-y-3">
-                                {menuItem.columns[1].items?.map((item, idx) => (
-                                  <li key={idx}>
-                                    <Link
-                                      to={item.link}
-                                      className="text-[12px] text-[#212121] hover:underline"
-                                    >
-                                      {item.label}
-                                    </Link>
-                                  </li>
-                                ))}
+                                {menuItem.columns[1].items?.map((item, idx) => {
+                                  // Build correct link: if link doesn't start with parent menu slug, prepend it
+                                  let fullLink = item.link || '';
+                                  if (!fullLink.startsWith('/')) {
+                                    fullLink = '/' + fullLink;
+                                  }
+                                  // If link is just one segment like "/flora", prepend menu slug
+                                  const linkParts = fullLink.split('/').filter(Boolean);
+                                  if (linkParts.length === 1) {
+                                    fullLink = `/${menuItem.slug}/${linkParts[0]}`;
+                                  }
+                                  return (
+                                    <li key={idx}>
+                                      <Link
+                                        to={fullLink}
+                                        className="text-[12px] text-[#212121] hover:underline"
+                                      >
+                                        {item.label}
+                                      </Link>
+                                    </li>
+                                  );
+                                })}
                               </ul>
                             </div>
                           )}
 
-                          {/* Column 3 & 4: Images */}
+                          {/* Column 3 & 4: Images - FULL HEIGHT + NO GAP */}
                           {menuItem.images && menuItem.images.length > 0 && (
                             <>
                               {menuItem.images.slice(0, 2).map((image, idx) => (
-                                <div key={idx} className="relative overflow-hidden bg-gray-100 h-[300px]">
+                                <div key={idx} className="relative h-full overflow-hidden bg-gray-100">
+                                  {/* h-full = puri height le lega */}
                                   <img
                                     src={image.imageUrl}
                                     alt={image.imageTitle || 'Menu Image'}
@@ -153,10 +180,9 @@ const Navbar = () => {
                                       console.error('Image failed to load:', image.imageUrl);
                                       (e.target as HTMLImageElement).style.display = 'none';
                                     }}
-                                    onLoad={() => console.log('Image loaded successfully:', image.imageUrl)}
                                   />
-                                  <div className="absolute inset-0 bg-black/20 opacity-0 transition-opacity hover:opacity-100" />
-                                  <span className="absolute left-4 top-4 text-[12px] font-medium text-white drop-shadow">
+                                  <div className="absolute inset-0 bg-black/10 transition-opacity hover:bg-black/20" />
+                                  <span className="absolute left-6 top-6 text-[14px] font-medium text-white drop-shadow-lg">
                                     {image.imageTitle || 'Menu Image'}
                                   </span>
                                 </div>
@@ -172,6 +198,8 @@ const Navbar = () => {
             </ul>
           </nav>
 
+          {/* Baaki ka code same rahega... */}
+
           {/* Mobile Menu Button */}
           <button
             className="lg:hidden"
@@ -183,8 +211,8 @@ const Navbar = () => {
 
           {/* Center: Logo */}
           <div className="absolute left-1/2 -translate-x-1/2">
-            <Link to="/" className="text-[20px] font-light tracking-[0.2em] text-[#212121]">
-              431-88
+            <Link to="/" className="text-[20px] font-bold text-[#212121]">
+              I AM TROUBLE
             </Link>
           </div>
 
@@ -237,17 +265,29 @@ const Navbar = () => {
                         <li key={column._id}>
                           <p className="mb-2 text-[12px] font-medium text-[#212121]">{column.heading}</p>
                           <ul className="space-y-2">
-                            {column.items?.map((item, idx) => (
-                              <li key={idx}>
-                                <Link
-                                  to={item.link}
-                                  className="text-[12px] text-[#212121]"
-                                  onClick={() => setIsMobileMenuOpen(false)}
-                                >
-                                  {item.label}
-                                </Link>
-                              </li>
-                            ))}
+                            {column.items?.map((item, idx) => {
+                              // Build correct link: if link doesn't start with parent menu slug, prepend it
+                              let fullLink = item.link || '';
+                              if (!fullLink.startsWith('/')) {
+                                fullLink = '/' + fullLink;
+                              }
+                              // If link is just one segment like "/flora", prepend menu slug
+                              const linkParts = fullLink.split('/').filter(Boolean);
+                              if (linkParts.length === 1) {
+                                fullLink = `/${menuItem.slug}/${linkParts[0]}`;
+                              }
+                              return (
+                                <li key={idx}>
+                                  <Link
+                                    to={fullLink}
+                                    className="text-[12px] text-[#212121]"
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                  >
+                                    {item.label}
+                                  </Link>
+                                </li>
+                              );
+                            })}
                           </ul>
                         </li>
                       ))}

@@ -9,12 +9,13 @@ import uploadRoutes from './routes/upload.js';
 import productRoutes from './routes/product.js';
 import cartRoutes from './routes/cart.js';
 import orderRoutes from './routes/order.js';
+import collectionRoutes from './routes/collection.js';
 
 const app = express();
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: '*',
   credentials: true
 }));
 app.use(express.json({ limit: '50mb' }));
@@ -28,6 +29,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/collections', collectionRoutes);
 
 app.get('/', (req, res) => {
   res.send('E-commerce API Server');
@@ -38,7 +40,7 @@ const PORT = ENV.PORT || 8000;
 const server = async () => {
   try {
     await connectDb();
-    app.listen(PORT, () => {
+    app.listen(PORT, '0.0.0.0' , () => {
       console.log(`Server is running on port ${PORT}`);
     });
   } catch (error) {

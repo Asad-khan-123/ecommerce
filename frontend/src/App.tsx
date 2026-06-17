@@ -10,6 +10,7 @@ import AdminLayout from './components/AdminLayout';
 import Login from './pages/Login';
 import Home from './pages/Home';
 import Pdp from './pages/Pdp';
+import Collection from './pages/Collection';
 import Dashboard from './pages/admin/Dashboard';
 import { MenuManager } from './pages/admin/MenuManager';
 import { ProductManager } from './pages/admin/ProductManager';
@@ -58,15 +59,11 @@ function App() {
               {/* Public Routes — all share Navbar + Footer */}
               <Route element={<PublicLayout />}>
                 <Route path="/" element={<Home />} />
+                <Route path="/:menuSlug" element={<Collection />} />
+                <Route path="/:menuSlug/:itemSlug" element={<Collection />} />
                 <Route path="/products/:slug" element={<Pdp />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/order-success/:id" element={<OrderSuccess />} />
-                {/* Future pages go here, e.g.: */}
-                {/* <Route path="/collections/:slug" element={<CollectionPage />} /> */}
-                {/* <Route path="/account" element={<Account />} /> */}
-                {/* <Route path="/cart" element={<Cart />} /> */}
-                {/* Catch-all: redirect unknown paths to Home */}
-                <Route path="*" element={<Home />} />
               </Route>
             </Routes>
           </CartProvider>

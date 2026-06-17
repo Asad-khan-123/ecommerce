@@ -18,6 +18,7 @@ export interface Product {
   menuItem?: { _id: string; title: string; slug: string } | null;
   columnId?: string | null;
   subMenuItemId?: string | null;
+  tag?: string;
   createdAt: string;
   updatedAt: string;
 }

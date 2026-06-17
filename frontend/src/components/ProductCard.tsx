@@ -10,17 +10,20 @@ const ProductCard = ({ product }: ProductCardProps) => {
   const [hovered, setHovered] = useState(false);
   const [imgError, setImgError] = useState(false);
 
-  const primaryImage = product.images?.[0];
-  const secondaryImage = product.images?.[1];
+  const primaryImage = product.images?.[0]
+  const secondaryImage = product.images?.[1]
   const displayImage = hovered && secondaryImage? secondaryImage : primaryImage;
 
   const discount =
     product.compareAtPrice && product.compareAtPrice > product.price
-    ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
+  ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
       : null;
 
-  const handleQuickAdd = () => {
-    // Allow event to bubble up to the parent Link tag so user navigates to PDP to select variants
+  const handleQuickAdd = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // TODO: Add to cart logic
+    console.log('Quick add:', product._id);
   };
 
   return (
@@ -32,7 +35,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
     >
       {/* Image Container */}
       <div className="relative overflow-hidden bg-[#F5F5F5] aspect-[3/4]">
-        {displayImage &&!imgError? (
+        {displayImage && !imgError ? (
           <img
             src={displayImage}
             alt={product.title}
@@ -41,48 +44,55 @@ const ProductCard = ({ product }: ProductCardProps) => {
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-[#EBEBEB]">
-            <span className="text- tracking-widest text-[#999]">NO IMAGE</span>
+            <span className="text-[11px] tracking-widest text-[#999]">NO IMAGE</span>
           </div>
         )}
 
         {/* Discount Badge */}
         {discount && (
-          <span className="absolute left-3 top-3 bg-[#212121] px-2 py-[2px] text- tracking-widest text-white uppercase">
+          <span className="absolute left-3 top-3 bg-[#212121] px-2 py-[2px] text-[9px] tracking-widest text-white uppercase">
             -{discount}%
+          </span>
+        )}
+
+        {/* Tag Badge */}
+        {product.tag && (
+          <span className="absolute right-3 top-3 bg-white border border-[#212121]/15 px-2 py-[2px] text-[10px] tracking-widest text-[#212121] uppercase font-medium">
+            {product.tag}
           </span>
         )}
 
         {/* Out of Stock Overlay */}
         {!product.inStock && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-            <span className="bg-white px-3 py-1 text- tracking-[0.2em] uppercase text-[#212121]">
+            <span className="bg-white px-3 py-1 text-[10px] tracking-[0.2em] uppercase text-[#212121]">
               Sold Out
             </span>
           </div>
         )}
 
-        {/* Quick Add Button - Hover pe */}
+        {/* Quick Add Button - Bottom Right + Small */}
         {hovered && product.inStock && (
           <button
             onClick={handleQuickAdd}
-            className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white px-6 py-2 text- text-[#212121] tracking-[0.1em] uppercase hover:bg-[#212121] hover:text-white transition-all duration-200"
+            className="absolute bottom-3 right-3 bg-white px-3 py-1.5 text-[9px] text-[#212121] tracking-[0.1em] uppercase hover:bg-[#212121] hover:text-white transition-all duration-200"
           >
             QUICK ADD
           </button>
         )}
       </div>
 
-      {/* Product Info - 431-88 Style */}
-      <div className="mt-3">
-        <h3 className="text- text-[#212121] line-clamp-1">
+      {/* Product Info - Exact 431-88 Style */}
+      <div className="px-0 py-2.5">
+        <h3 className="text-[12px] font-normal text-[#212121] line-clamp-2 leading-normal">
           {product.title}
         </h3>
         <div className="mt-1 flex items-center gap-2">
-          <span className="text- text-[#999]">
+          <span className="text-[12px] text-[#212121]">
             INR {product.price.toLocaleString('en-IN')}
           </span>
           {product.compareAtPrice && product.compareAtPrice > product.price && (
-            <span className="text- text-[#999] line-through">
+            <span className="text-[11px] text-[#999] line-through">
               INR {product.compareAtPrice.toLocaleString('en-IN')}
             </span>
           )}
