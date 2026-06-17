@@ -9,8 +9,6 @@ import {
   Image as ImageIcon,
   Search,
   Sliders,
-  DollarSign,
-  Tag,
   Package,
   Layers,
   ChevronRight,
@@ -273,7 +271,7 @@ export const ProductManager: React.FC = () => {
 
     setActionLoading(true);
     try {
-      let res;
+      let res: any;
       if (editProduct) {
         res = await productApi.updateProduct(editProduct._id, productPayload);
         if (res.success) {

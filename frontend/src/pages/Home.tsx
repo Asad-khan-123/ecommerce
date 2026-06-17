@@ -10,10 +10,6 @@ const Home = () => {
     fetchProducts({ limit: 4 });
   }, [fetchProducts]);
 
-  const handleQuickAdd = (productId: string) => {
-    console.log('Quick add product:', productId);
-    // Add your cart logic here
-  };
 
   return (
     <div className="min-h-screen bg-white font-['Poppins']">

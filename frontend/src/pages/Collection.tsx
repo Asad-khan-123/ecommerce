@@ -31,10 +31,10 @@ const Collection = () => {
       setLoading(true);
       setError('');
 
-      // Build URL based on whether we have itemSlug or not
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
       const url = itemSlug
-        ? `http://localhost:8000/api/collections/${menuSlug}/${itemSlug}?page=${currentPage}&limit=${PRODUCTS_PER_PAGE}`
-        : `http://localhost:8000/api/collections/${menuSlug}?page=${currentPage}&limit=${PRODUCTS_PER_PAGE}`;
+        ? `${API_BASE_URL}/collections/${menuSlug}/${itemSlug}?page=${currentPage}&limit=${PRODUCTS_PER_PAGE}`
+        : `${API_BASE_URL}/collections/${menuSlug}?page=${currentPage}&limit=${PRODUCTS_PER_PAGE}`;
 
       const response = await fetch(url);
       const data = await response.json();

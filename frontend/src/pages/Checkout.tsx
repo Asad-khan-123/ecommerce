@@ -21,7 +21,7 @@ const RazorpayModal: React.FC<{
   onSuccess: (paymentId: string) => void;
   onFailure: () => void;
   onClose: () => void;
-}> = ({ amount, onSuccess, onFailure, onClose }) => {
+}> = ({ amount, onSuccess, onClose }) => {
   const [processing, setProcessing] = useState(false);
   const [failed, setFailed] = useState(false);
 
