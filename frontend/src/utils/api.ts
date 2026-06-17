@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:8000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
 const getHeaders = () => {
   const token = localStorage.getItem('authToken');
@@ -120,7 +120,7 @@ export const productApi = {
     if (filters.subMenuItemId) params.append('subMenuItemId', filters.subMenuItemId);
     if (filters.page) params.append('page', String(filters.page));
     if (filters.limit) params.append('limit', String(filters.limit));
-    
+
     const query = params.toString() ? `?${params.toString()}` : '';
     const response = await fetch(`${API_BASE_URL}/products${query}`);
     return handleResponse(response);
