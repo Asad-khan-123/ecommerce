@@ -52,6 +52,10 @@ interface ProductData {
   columnId: string | null;
   subMenuItemId: string | null;
   isActive: boolean;
+  fabricMaterials?: string;
+  sizeModel?: string;
+  fitConstruction?: string;
+  shippingReturns?: string;
   createdAt: string;
   tag?: string;
 }
@@ -77,6 +81,12 @@ export const ProductManager: React.FC = () => {
   const [sizes, setSizes] = useState<string[]>([]);
   const [colors, setColors] = useState<string[]>([]);
   const [tag, setTag] = useState('');
+
+  // Accordion Details Overrides Form State
+  const [fabricMaterials, setFabricMaterials] = useState('');
+  const [sizeModel, setSizeModel] = useState('');
+  const [fitConstruction, setFitConstruction] = useState('');
+  const [shippingReturns, setShippingReturns] = useState('');
 
   // Categorization Form State
   const [selectedMenuId, setSelectedMenuId] = useState('');
@@ -142,6 +152,10 @@ export const ProductManager: React.FC = () => {
     setSizes(['Free Size']);
     setColors([]);
     setTag('');
+    setFabricMaterials('');
+    setSizeModel('');
+    setFitConstruction('');
+    setShippingReturns('');
     setSelectedMenuId('');
     setSelectedColumnId('');
     setSelectedSubMenuId('');
@@ -163,6 +177,10 @@ export const ProductManager: React.FC = () => {
     setSizes(product.sizes || []);
     setColors(product.colors || []);
     setTag(product.tag || '');
+    setFabricMaterials(product.fabricMaterials || '');
+    setSizeModel(product.sizeModel || '');
+    setFitConstruction(product.fitConstruction || '');
+    setShippingReturns(product.shippingReturns || '');
 
     // Resolve categorization
     const menuId = typeof product.menuItem === 'object' && product.menuItem
@@ -266,7 +284,11 @@ export const ProductManager: React.FC = () => {
       menuItem: selectedMenuId || null,
       columnId: selectedColumnId || null,
       subMenuItemId: selectedSubMenuId || null,
-      tag: tag.trim() || null
+      tag: tag.trim() || null,
+      fabricMaterials,
+      sizeModel,
+      fitConstruction,
+      shippingReturns
     };
 
     setActionLoading(true);
@@ -926,6 +948,59 @@ export const ProductManager: React.FC = () => {
                           </button>
                         </span>
                       ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Product Accordion Details Overrides */}
+                <div className="space-y-4">
+                  <h3 className="text-xs font-semibold text-gray-450 uppercase tracking-wider border-b border-gray-100 pb-1.5">
+                    Product Accordion Details Overrides (Optional)
+                  </h3>
+                  <p className="text-[10px] text-gray-500 -mt-2">
+                    Leave these fields empty to automatically inherit the global default configured in Banner Settings.
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">Fabric & Materials Override</label>
+                      <textarea
+                        value={fabricMaterials}
+                        onChange={(e) => setFabricMaterials(e.target.value)}
+                        rows={3}
+                        placeholder="Leave empty to use global default..."
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-[#212121] focus:border-[#212121]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">Size on Model Override</label>
+                      <textarea
+                        value={sizeModel}
+                        onChange={(e) => setSizeModel(e.target.value)}
+                        rows={3}
+                        placeholder="Leave empty to use global default..."
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-[#212121] focus:border-[#212121]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">Fit & Construction Override</label>
+                      <textarea
+                        value={fitConstruction}
+                        onChange={(e) => setFitConstruction(e.target.value)}
+                        rows={3}
+                        placeholder="Leave empty to use global default..."
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-[#212121] focus:border-[#212121]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">Shipping & Returns Override</label>
+                      <textarea
+                        value={shippingReturns}
+                        onChange={(e) => setShippingReturns(e.target.value)}
+                        rows={3}
+                        placeholder="Leave empty to use global default..."
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-[#212121] focus:border-[#212121]"
+                      />
                     </div>
                   </div>
                 </div>

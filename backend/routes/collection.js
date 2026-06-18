@@ -4,6 +4,60 @@ import MenuItem from '../models/menuItem.js';
 
 const router = express.Router();
 
+// Helper to build dynamic query and sorting
+const buildQueryAndSort = (menuItemId, itemSlug, queryParams) => {
+  const query = {
+    menuItem: menuItemId,
+    isActive: true
+  };
+
+  if (itemSlug) {
+    query.subMenuItemId = itemSlug;
+  }
+
+  // Size Filter
+  if (queryParams.sizes) {
+    const sizesArray = queryParams.sizes.split(',').map(s => s.trim()).filter(Boolean);
+    if (sizesArray.length > 0) {
+      query.sizes = { $in: sizesArray };
+    }
+  }
+
+  // Color Filter
+  if (queryParams.colors) {
+    const colorsArray = queryParams.colors.split(',').map(c => c.trim()).filter(Boolean);
+    if (colorsArray.length > 0) {
+      query.colors = { $in: colorsArray };
+    }
+  }
+
+  // Availability Filter
+  if (queryParams.inStock) {
+    query.inStock = queryParams.inStock === 'true';
+  }
+
+  // Price Filter
+  if (queryParams.priceMin || queryParams.priceMax) {
+    query.price = {};
+    if (queryParams.priceMin) query.price.$gte = parseFloat(queryParams.priceMin);
+    if (queryParams.priceMax) query.price.$lte = parseFloat(queryParams.priceMax);
+  }
+
+  // Sort Option
+  let sortObj = { createdAt: -1 }; // default: newest / featured
+  if (queryParams.sort) {
+    if (queryParams.sort === 'price_asc') {
+      sortObj = { price: 1 };
+    } else if (queryParams.sort === 'price_desc') {
+      sortObj = { price: -1 };
+    } else if (queryParams.sort === 'newest') {
+      sortObj = { createdAt: -1 };
+    }
+  }
+
+  return { query, sortObj };
+};
+
 // GET /api/collections/:menuSlug - Get all products from a menu
 router.get('/:menuSlug', async (req, res) => {
   try {
@@ -22,20 +76,16 @@ router.get('/:menuSlug', async (req, res) => {
       });
     }
 
+    const { query, sortObj } = buildQueryAndSort(menuItem._id, null, req.query);
+
     // Get products for this menu item with pagination
-    const products = await Product.find({
-      menuItem: menuItem._id,
-      isActive: true
-    })
+    const products = await Product.find(query)
       .skip(skip)
       .limit(limit)
-      .sort({ createdAt: -1 });
+      .sort(sortObj);
 
     // Get total count for pagination
-    const total = await Product.countDocuments({
-      menuItem: menuItem._id,
-      isActive: true
-    });
+    const total = await Product.countDocuments(query);
 
     res.json({
       success: true,
@@ -81,25 +131,18 @@ router.get('/:menuSlug/:itemSlug', async (req, res) => {
 
     console.log('Found menu item:', menuItem.title, menuItem._id);
 
+    const { query, sortObj } = buildQueryAndSort(menuItem._id, itemSlug, req.query);
+
     // Get products for this specific submenu item with pagination
-    // Match using subMenuItemId which should be the itemSlug
-    const products = await Product.find({
-      menuItem: menuItem._id,
-      subMenuItemId: itemSlug,
-      isActive: true
-    })
+    const products = await Product.find(query)
       .skip(skip)
       .limit(limit)
-      .sort({ createdAt: -1 });
+      .sort(sortObj);
 
     console.log('Found products:', products.length);
 
     // Get total count for pagination
-    const total = await Product.countDocuments({
-      menuItem: menuItem._id,
-      subMenuItemId: itemSlug,
-      isActive: true
-    });
+    const total = await Product.countDocuments(query);
 
     // Find the submenu item label from menu columns
     let submenuLabel = itemSlug;

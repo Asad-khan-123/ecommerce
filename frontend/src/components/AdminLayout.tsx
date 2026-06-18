@@ -17,6 +17,7 @@ export const AdminLayout: React.FC = () => {
   const menuItems = [
     { label: 'Dashboard', href: '/admin', icon: '📊' },
     { label: 'Menu Manager', href: '/admin/menu', icon: '🎯' },
+    { label: 'Banners', href: '/admin/banners', icon: '🖼️' },
     { label: 'Products', href: '/admin/products', icon: '🛍️' },
     { label: 'Orders', href: '/admin/orders', icon: '📦' }
   ];
@@ -50,10 +51,10 @@ export const AdminLayout: React.FC = () => {
                 <Link
                   key={item.href}
                   to={item.href}
-                  className={`flex items-center px-4 py-3 rounded-lg transition-all text-[13px] font-medium ${
+                  className={`flex items-center px-4 py-3 transition-all text-[13px] font-medium border-l-2 ${
                     active
-                      ? 'bg-[#FF6B6B] text-white shadow-lg shadow-[#FF6B6B]/30'
-                      : 'text-[#BDBDBD] hover:bg-[#333] hover:text-white'
+                      ? 'bg-white/10 text-white border-white'
+                      : 'text-[#BDBDBD] border-transparent hover:bg-white/5 hover:text-white'
                   }`}
                   onClick={() => setSidebarOpen(false)}
                 >
@@ -74,7 +75,7 @@ export const AdminLayout: React.FC = () => {
           </div>
           <button
             onClick={handleLogout}
-            className="w-full flex items-center justify-center px-4 py-2.5 bg-[#FF6B6B] hover:bg-[#ff5252] text-white rounded-lg transition-all text-[12px] font-medium tracking-[0.05em]"
+            className="w-full flex items-center justify-center px-4 py-2.5 bg-transparent border border-white/20 hover:bg-white hover:text-zinc-900 hover:border-white text-white rounded-lg transition-all text-[12px] font-medium tracking-[0.05em]"
           >
             <LogOut size={16} className="mr-2" />
             LOGOUT

@@ -10,6 +10,8 @@ import productRoutes from './routes/product.js';
 import cartRoutes from './routes/cart.js';
 import orderRoutes from './routes/order.js';
 import collectionRoutes from './routes/collection.js';
+import bannerRoutes from './routes/banner.js';
+import settingsRoutes from './routes/settings.js';
 
 const app = express();
 
@@ -58,6 +60,8 @@ app.use('/api/products', productRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/collections', collectionRoutes);
+app.use('/api/banners', bannerRoutes);
+app.use('/api/settings', settingsRoutes);
 
 app.get('/', (req, res) => {
   res.send('E-commerce API Server');

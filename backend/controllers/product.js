@@ -1,4 +1,5 @@
 import Product from '../models/product.js';
+import Setting from '../models/settings.js';
 
 // Helper to generate a slug from title
 const generateSlug = (title) => {
@@ -51,7 +52,11 @@ export const createProduct = async (req, res) => {
       columnId: req.body.columnId || null,
       subMenuItemId: req.body.subMenuItemId || null,
       tag: req.body.tag || null,
-      isActive: req.body.isActive !== false
+      isActive: req.body.isActive !== false,
+      fabricMaterials: req.body.fabricMaterials || '',
+      sizeModel: req.body.sizeModel || '',
+      fitConstruction: req.body.fitConstruction || '',
+      shippingReturns: req.body.shippingReturns || ''
     });
 
     await product.save();
@@ -70,11 +75,18 @@ export const getProducts = async (req, res) => {
   try {
     const query = { isActive: true };
 
-    const { menuItem, columnId, subMenuItemId, limit = 20, page = 1 } = req.query;
+    const { menuItem, columnId, subMenuItemId, limit = 20, page = 1, search } = req.query;
 
     if (menuItem) query.menuItem = menuItem;
     if (columnId) query.columnId = columnId;
     if (subMenuItemId) query.subMenuItemId = subMenuItemId;
+
+    if (search) {
+      query.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } }
+      ];
+    }
 
     const skip = (Number(page) - 1) * Number(limit);
 
@@ -127,12 +139,27 @@ export const getProductBySlug = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Product not found' });
     }
 
+    // Fetch settings to resolve defaults
+    const settings = await Setting.find();
+    const settingsMap = {};
+    settings.forEach(s => {
+      settingsMap[s.key] = s.value;
+    });
+
+    const resolvedProduct = product.toObject();
+
+    // Resolve accordion tabs: if empty, use settings defaults, else fallback to hardcoded initial values
+    resolvedProduct.fabricMaterials = product.fabricMaterials || settingsMap["fabricMaterials"] || "Crafted from premium quality materials selected for durability and comfort. Each piece undergoes rigorous quality checks before reaching you.";
+    resolvedProduct.sizeModel = product.sizeModel || settingsMap["sizeModel"] || "Our model is 6'1\" and wearing a size M. The fit is true to size — we recommend ordering your usual size.";
+    resolvedProduct.fitConstruction = product.fitConstruction || settingsMap["fitConstruction"] || "Relaxed fit with structured shoulders for a clean silhouette. Designed to layer or wear standalone.";
+    resolvedProduct.shippingReturns = product.shippingReturns || settingsMap["shippingReturns"] || "Free shipping on orders over ₹2,000. Rs. 150 shipping fee otherwise. Returns accepted within 14 days of delivery in original condition.";
+
     res.status(200).json({
       success: true,
-      data: product
+      data: resolvedProduct
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Error fetching product', error: error.message });
+    res.status(550).json({ success: false, message: 'Error fetching product', error: error.message });
   }
 };
 
@@ -197,6 +224,11 @@ export const updateProduct = async (req, res) => {
     
     if (req.body.tag !== undefined) product.tag = req.body.tag;
     if (req.body.isActive !== undefined) product.isActive = req.body.isActive;
+
+    if (req.body.fabricMaterials !== undefined) product.fabricMaterials = req.body.fabricMaterials;
+    if (req.body.sizeModel !== undefined) product.sizeModel = req.body.sizeModel;
+    if (req.body.fitConstruction !== undefined) product.fitConstruction = req.body.fitConstruction;
+    if (req.body.shippingReturns !== undefined) product.shippingReturns = req.body.shippingReturns;
 
     await product.save();
 

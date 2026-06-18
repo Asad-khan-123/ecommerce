@@ -301,7 +301,7 @@ export const MenuManager = () => {
             setEditingItem(null);
             setFormData({ title: '', slug: '', order: 0 });
           }}
-          className="flex items-center justify-center px-4 py-2.5 bg-[#FF6B6B] hover:bg-[#ff5252] text-white rounded-lg transition-all text-[12px] font-semibold tracking-[0.05em]"
+          className="flex items-center justify-center px-4 py-2.5 bg-[#212121] hover:bg-black text-white rounded-lg transition-all text-[12px] font-semibold tracking-[0.05em]"
         >
           <Plus size={18} className="mr-2" />
           ADD MENU ITEM
@@ -403,7 +403,7 @@ export const MenuManager = () => {
                     key={item._id}
                     className={`p-4 cursor-pointer transition-all border-l-4 ${
                       selectedMenuItem?._id === item._id
-                        ? 'bg-[#FF6B6B]/10 border-l-[#FF6B6B]'
+                        ? 'bg-neutral-100 border-l-[#212121]'
                         : 'bg-white border-l-transparent hover:bg-[#F9F9F9]'
                     }`}
                   >
@@ -486,7 +486,7 @@ export const MenuManager = () => {
                       <p className="text-[12px] uppercase tracking-[0.1em] text-[#999] font-semibold">Menu Columns</p>
                       <button
                         onClick={handleAddColumn}
-                        className="flex items-center px-3 py-2 bg-[#4ECDC4] hover:bg-[#44B8A8] text-white rounded-lg transition-colors text-[11px] font-semibold"
+                        className="flex items-center px-3 py-2 border border-[#212121] text-[#212121] hover:bg-[#212121] hover:text-white rounded-lg transition-colors text-[11px] font-semibold bg-white"
                       >
                         <Plus size={16} className="mr-1" />
                         ADD
@@ -588,7 +588,7 @@ export const MenuManager = () => {
 
                             <button
                               onClick={() => handleAddColumnItem(colIndex)}
-                              className="text-[11px] px-3 py-1.5 bg-blue-100 text-blue-600 hover:bg-blue-200 rounded transition-colors font-semibold"
+                              className="text-[11px] px-3 py-1.5 border border-[#212121] text-[#212121] hover:bg-[#212121] hover:text-white rounded transition-colors font-semibold bg-white"
                             >
                               + Add Item
                             </button>
@@ -663,7 +663,7 @@ export const MenuManager = () => {
               <div className="px-6 py-4 border-t border-[#E8E8E8] bg-[#F9F9F9] flex gap-3">
                 <button
                   onClick={handleSaveMenuItem}
-                  className="flex-1 flex items-center justify-center px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-[12px] font-semibold tracking-[0.05em]"
+                  className="flex-1 flex items-center justify-center px-4 py-2.5 bg-[#212121] hover:bg-black text-white rounded-lg transition-colors text-[12px] font-semibold tracking-[0.05em]"
                 >
                   <Save size={16} className="mr-2" />
                   SAVE CHANGES

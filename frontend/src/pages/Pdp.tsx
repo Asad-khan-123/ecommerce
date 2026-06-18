@@ -42,10 +42,10 @@ const Accordion = ({
         </button>
         <div
           className={`overflow-hidden transition-all duration-300 ${
-            open === item.title ? 'max-h-40 pb-4' : 'max-h-0'
+            open === item.title ? 'max-h-[500px] pb-4' : 'max-h-0'
           }`}
         >
-          <p className="text-[12px] leading-relaxed text-[#555]">{item.content}</p>
+          <p className="text-[12px] leading-relaxed text-[#555] whitespace-pre-line">{item.content}</p>
         </div>
       </div>
     ))}
@@ -81,7 +81,7 @@ const PdpSkeleton = () => (
 ───────────────────────────────────────────────────────────── */
 const Pdp = () => {
   const { slug } = useParams<{ slug: string }>();
-  const { fetchProductBySlug, products, fetchProducts } = useProducts();
+  const { fetchProductBySlug } = useProducts();
 
   const { addToCart } = useCart();
   const { user } = useAuth();
@@ -122,20 +122,89 @@ const Pdp = () => {
     });
   }, [slug, fetchProductBySlug]);
 
-  /* Fetch related products (all products, exclude current) */
+  /* Fetch related products from the same category with fallback */
   useEffect(() => {
-    if (products.length === 0) {
-      fetchProducts({ limit: 8 });
-    }
-  }, [products.length, fetchProducts]);
+    if (!product) return;
 
-  useEffect(() => {
-    if (product && products.length > 0) {
-      setRelatedProducts(
-        products.filter((p) => p._id !== product._id).slice(0, 4)
-      );
-    }
-  }, [product, products]);
+    const fetchRelated = async () => {
+      try {
+        const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+        
+        // Step 1: Try to fetch products matching same menuItem AND subMenuItemId
+        const params = new URLSearchParams();
+        if (product.menuItem) {
+          const mId = typeof product.menuItem === 'object' && product.menuItem !== null
+            ? product.menuItem._id
+            : product.menuItem;
+          params.append('menuItem', mId);
+        }
+        if (product.subMenuItemId) {
+          params.append('subMenuItemId', product.subMenuItemId);
+        }
+        params.append('limit', '10');
+
+        let res = await fetch(`${apiBase}/products?${params.toString()}`);
+        let data = await res.json();
+        let list: Product[] = [];
+
+        if (data.success && data.data) {
+          list = data.data.filter((p: Product) => p._id !== product._id);
+        }
+
+        // Step 2: Fallback to same parent menuItem if list has less than 4 products
+        if (list.length < 4 && product.menuItem) {
+          const mId = typeof product.menuItem === 'object' && product.menuItem !== null
+            ? product.menuItem._id
+            : product.menuItem;
+          
+          const fallbackParams = new URLSearchParams();
+          fallbackParams.append('menuItem', mId);
+          fallbackParams.append('limit', '12');
+
+          const fallbackRes = await fetch(`${apiBase}/products?${fallbackParams.toString()}`);
+          const fallbackData = await fallbackRes.json();
+
+          if (fallbackData.success && fallbackData.data) {
+            const fallbackList = fallbackData.data.filter((p: Product) => p._id !== product._id);
+            // Combine list, avoiding duplicates
+            const combined = [...list];
+            fallbackList.forEach((item: Product) => {
+              if (!combined.some(existing => existing._id === item._id)) {
+                combined.push(item);
+              }
+            });
+            list = combined;
+          }
+        }
+
+        // Step 3: Fallback to any active products if list still has less than 4 products
+        if (list.length < 4) {
+          const generalParams = new URLSearchParams();
+          generalParams.append('limit', '12');
+
+          const generalRes = await fetch(`${apiBase}/products?${generalParams.toString()}`);
+          const generalData = await generalRes.json();
+
+          if (generalData.success && generalData.data) {
+            const generalList = generalData.data.filter((p: Product) => p._id !== product._id);
+            const combined = [...list];
+            generalList.forEach((item: Product) => {
+              if (!combined.some(existing => existing._id === item._id)) {
+                combined.push(item);
+              }
+            });
+            list = combined;
+          }
+        }
+
+        setRelatedProducts(list.slice(0, 4));
+      } catch (err) {
+        console.error('Failed to fetch related products:', err);
+      }
+    };
+
+    fetchRelated();
+  }, [product]);
 
   /* Recently Viewed products tracking */
   useEffect(() => {
@@ -160,27 +229,6 @@ const Pdp = () => {
     }
   }, [product]);
 
-  const accordionData: AccordionItem[] = [
-    {
-      title: 'Fabric & Materials',
-      content:
-        'Crafted from premium quality materials selected for durability and comfort. Each piece undergoes rigorous quality checks before reaching you.',
-    },
-    {
-      title: 'Size on Model',
-      content: "Our model is 6'1\" and wearing a size M. The fit is true to size — we recommend ordering your usual size.",
-    },
-    {
-      title: 'Fit & Construction',
-      content:
-        'Relaxed fit with structured shoulders for a clean silhouette. Designed to layer or wear standalone.',
-    },
-    {
-      title: 'Shipping & Returns',
-      content:
-        'Free shipping on orders over ₹2,000. Rs. 150 shipping fee otherwise. Returns accepted within 14 days of delivery in original condition. See our full returns policy for details.',
-    },
-  ];
 
   const handleAddToCart = () => {
     if (!product) return;
@@ -249,6 +297,25 @@ const Pdp = () => {
 
   if (!product) return null;
 
+  const accordionData: AccordionItem[] = [
+    {
+      title: 'Fabric & Materials',
+      content: product.fabricMaterials || '',
+    },
+    {
+      title: 'Size on Model',
+      content: product.sizeModel || '',
+    },
+    {
+      title: 'Fit & Construction',
+      content: product.fitConstruction || '',
+    },
+    {
+      title: 'Shipping & Returns',
+      content: product.shippingReturns || '',
+    },
+  ];
+
   const discount =
     product.compareAtPrice && product.compareAtPrice > product.price
       ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
@@ -260,48 +327,30 @@ const Pdp = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2">
 
           {/* ── LEFT: Image Gallery ── */}
-          <div className="lg:sticky lg:top-[60px] lg:h-[calc(100vh-60px)] lg:overflow-y-auto">
-            {/* Mobile: single large image + thumbnails */}
+          <div className="lg:sticky lg:top-[60px] lg:h-[calc(100vh-60px)] lg:overflow-y-auto pb-6">
             <div className="relative">
               {product.images.length > 0 ? (
-                <>
+                <div className="relative w-full aspect-[3/4] bg-[#F5F5F5]">
                   <img
                     src={product.images[activeImage]}
                     alt={`${product.title} — view ${activeImage + 1}`}
-                    className="w-full object-cover"
-                    style={{ aspectRatio: '3/4' }}
+                    className="w-full h-full object-cover animate-fade-in"
                   />
                   {/* Discount badge */}
                   {discount && (
-                    <span className="absolute left-4 top-4 bg-[#212121] px-2 py-[2px] text-[10px] tracking-widest uppercase text-white">
+                    <span className="absolute left-4 top-4 bg-[#212121] px-2 py-[2px] text-[10px] tracking-widest uppercase text-white z-10">
                       -{discount}%
                     </span>
                   )}
                   {/* Out of stock */}
                   {!product.inStock && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/30 z-10">
                       <span className="bg-white px-4 py-1.5 text-[10px] tracking-[0.25em] uppercase text-[#212121]">
                         Sold Out
                       </span>
                     </div>
                   )}
-                  {/* Thumbnail strip (hidden on desktop — desktop shows stacked) */}
-                  {product.images.length > 1 && (
-                    <div className="flex gap-1.5 p-3 lg:hidden">
-                      {product.images.map((img, idx) => (
-                        <button
-                          key={idx}
-                          onClick={() => setActiveImage(idx)}
-                          className={`h-14 w-10 flex-shrink-0 overflow-hidden border transition-all ${
-                            activeImage === idx ? 'border-[#212121]' : 'border-transparent opacity-60'
-                          }`}
-                        >
-                          <img src={img} alt={`thumb ${idx + 1}`} className="h-full w-full object-cover" />
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </>
+                </div>
               ) : (
                 <div className="flex aspect-[3/4] items-center justify-center bg-[#F5F5F5]">
                   <span className="text-[11px] tracking-widest uppercase text-[#999]">No Image</span>
@@ -309,17 +358,21 @@ const Pdp = () => {
               )}
             </div>
 
-            {/* Desktop: stacked images */}
+            {/* Thumbnail Strip - for both Desktop & Mobile (shows other images small) */}
             {product.images.length > 1 && (
-              <div className="hidden lg:grid lg:grid-cols-1 lg:gap-1">
-                {product.images.slice(1).map((img, idx) => (
-                  <img
+              <div className="flex flex-wrap gap-2 mt-4 px-4 lg:px-0">
+                {product.images.map((img, idx) => (
+                  <button
                     key={idx}
-                    src={img}
-                    alt={`${product.title} view ${idx + 2}`}
-                    className="w-full object-cover"
-                    style={{ aspectRatio: '3/4' }}
-                  />
+                    onClick={() => setActiveImage(idx)}
+                    className={`h-20 w-16 flex-shrink-0 overflow-hidden border transition-all duration-200 ${
+                      activeImage === idx 
+                        ? 'border-[#212121] scale-102' 
+                        : 'border-neutral-200 opacity-60 hover:opacity-100'
+                    }`}
+                  >
+                    <img src={img} alt={`thumb ${idx + 1}`} className="h-full w-full object-cover" />
+                  </button>
                 ))}
               </div>
             )}
@@ -543,41 +596,23 @@ const Pdp = () => {
                 onToggle={(t) => setOpenAccordion(openAccordion === t ? null : t)}
               />
 
-              {/* ── You May Also Like ── */}
-              {relatedProducts.length > 0 && (
-                <div className="mt-14 border-t border-[#E8E8E8] pt-10">
-                  <h3 className="mb-6 text-[11px] tracking-[0.3em] uppercase text-[#212121]">
-                    You May Also Like
-                  </h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    {relatedProducts.slice(0, 2).map((p) => (
-                      <ProductCard key={p._id} product={p} />
-                    ))}
-                  </div>
-                </div>
-              )}
-
             </div>
           </div>
         </div>
       </div>
 
-      {/* ── Full-width Related Products ── */}
-      {relatedProducts.length > 2 && (
-        <div className="border-t border-[#E8E8E8] px-6 py-16 sm:px-8">
-          <div className="mx-auto max-w-[1440px]">
-            <div className="mb-8 flex items-end justify-between">
-              <h2 className="text-[18px] font-light tracking-tight text-[#212121]">
-                Complete the Look
+      {/* ── Related Products ── */}
+      {relatedProducts.length > 0 && (
+        <div className="bg-white font-['Poppins']">
+          <div className="mx-auto w-full">
+            {/* Section Heading */}
+            <div className="border-t border-[#E8E8E8] py-12 text-center bg-white">
+              <h2 className="text-[12px] font-normal tracking-[0.3em] uppercase text-[#212121]">
+                Related Products
               </h2>
-              <Link
-                to="/"
-                className="text-[11px] tracking-wide text-[#999] underline underline-offset-4 hover:text-[#212121]"
-              >
-                View All
-              </Link>
             </div>
-            <div className="grid grid-cols-2 gap-x-5 gap-y-10 sm:grid-cols-3 lg:grid-cols-4">
+            {/* 4 Products Grid - Zero Gap 431-88 Style */}
+            <div className="grid grid-cols-2 gap-0 lg:grid-cols-4 bg-white border-y border-[#E8E8E8]">
               {relatedProducts.map((p) => (
                 <ProductCard key={p._id} product={p} />
               ))}
@@ -587,7 +622,7 @@ const Pdp = () => {
       )}
 
       {/* Recently Viewed Products */}
-      <RecentlyViewed currentProductId={product._id} />
+      <RecentlyViewed />
     </div>
   );
 };

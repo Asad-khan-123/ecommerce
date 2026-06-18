@@ -113,13 +113,14 @@ export const uploadApi = {
 
 // Product APIs
 export const productApi = {
-  getProducts: async (filters: { menuItem?: string; columnId?: string; subMenuItemId?: string; page?: number; limit?: number } = {}) => {
+  getProducts: async (filters: { menuItem?: string; columnId?: string; subMenuItemId?: string; page?: number; limit?: number; search?: string } = {}) => {
     const params = new URLSearchParams();
     if (filters.menuItem) params.append('menuItem', filters.menuItem);
     if (filters.columnId) params.append('columnId', filters.columnId);
     if (filters.subMenuItemId) params.append('subMenuItemId', filters.subMenuItemId);
     if (filters.page) params.append('page', String(filters.page));
     if (filters.limit) params.append('limit', String(filters.limit));
+    if (filters.search) params.append('search', filters.search);
 
     const query = params.toString() ? `?${params.toString()}` : '';
     const response = await fetch(`${API_BASE_URL}/products${query}`);
@@ -256,6 +257,78 @@ export const orderApi = {
       method: 'PUT',
       headers: getHeaders(),
       body: JSON.stringify({ paymentStatus })
+    });
+    return handleResponse(response);
+  }
+};
+
+// Banner APIs
+export const bannerApi = {
+  getActiveBanner: async () => {
+    const response = await fetch(`${API_BASE_URL}/banners/active`);
+    return handleResponse(response);
+  },
+
+  getAllBannersAdmin: async () => {
+    const response = await fetch(`${API_BASE_URL}/banners`, {
+      headers: getHeaders()
+    });
+    return handleResponse(response);
+  },
+
+  createBanner: async (data: any) => {
+    const response = await fetch(`${API_BASE_URL}/banners`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(data)
+    });
+    return handleResponse(response);
+  },
+
+  updateBanner: async (id: string, data: any) => {
+    const response = await fetch(`${API_BASE_URL}/banners/${id}`, {
+      method: 'PUT',
+      headers: getHeaders(),
+      body: JSON.stringify(data)
+    });
+    return handleResponse(response);
+  },
+
+  deleteBanner: async (id: string) => {
+    const response = await fetch(`${API_BASE_URL}/banners/${id}`, {
+      method: 'DELETE',
+      headers: getHeaders()
+    });
+    return handleResponse(response);
+  },
+
+  getHighlights: async () => {
+    const response = await fetch(`${API_BASE_URL}/banners/highlights`);
+    return handleResponse(response);
+  },
+
+  saveHighlights: async (highlights: any[]) => {
+    const response = await fetch(`${API_BASE_URL}/banners/highlights`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({ highlights })
+    });
+    return handleResponse(response);
+  }
+};
+
+// Settings APIs
+export const settingsApi = {
+  getSettings: async () => {
+    const response = await fetch(`${API_BASE_URL}/settings`);
+    return handleResponse(response);
+  },
+
+  saveSettings: async (settings: Record<string, string>) => {
+    const response = await fetch(`${API_BASE_URL}/settings`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({ settings })
     });
     return handleResponse(response);
   }

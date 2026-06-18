@@ -19,6 +19,10 @@ export interface Product {
   columnId?: string | null;
   subMenuItemId?: string | null;
   tag?: string;
+  fabricMaterials?: string;
+  sizeModel?: string;
+  fitConstruction?: string;
+  shippingReturns?: string;
   createdAt: string;
   updatedAt: string;
 }

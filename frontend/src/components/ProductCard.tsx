@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import type { Product } from '../context/ProductContext';
 
 interface ProductCardProps {
@@ -9,6 +9,7 @@ interface ProductCardProps {
 const ProductCard = ({ product }: ProductCardProps) => {
   const [hovered, setHovered] = useState(false);
   const [imgError, setImgError] = useState(false);
+  const navigate = useNavigate();
 
   const primaryImage = product.images?.[0]
   const secondaryImage = product.images?.[1]
@@ -22,8 +23,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    // TODO: Add to cart logic
-    console.log('Quick add:', product._id);
+    navigate(`/products/${product.slug}`);
   };
 
   return (

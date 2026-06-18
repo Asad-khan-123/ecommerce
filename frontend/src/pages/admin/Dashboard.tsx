@@ -53,28 +53,28 @@ export const Dashboard: React.FC = () => {
       title: 'Total Orders',
       value: stats.totalOrders,
       icon: ShoppingCart,
-      color: 'bg-gradient-to-br from-[#FF6B6B] to-[#FF5252]',
+      color: 'bg-zinc-900 text-white',
       subtext: `${stats.paidOrders} Paid`
     },
     {
       title: 'Total Products',
       value: stats.totalProducts,
       icon: Package,
-      color: 'bg-gradient-to-br from-[#4ECDC4] to-[#44B8A8]',
+      color: 'bg-zinc-800 text-white',
       subtext: `${stats.activeProducts} Active`
     },
     {
       title: 'Menu Items',
       value: stats.menuItems,
       icon: BarChart3,
-      color: 'bg-gradient-to-br from-[#FFD93D] to-[#FFC107]',
+      color: 'bg-zinc-700 text-white',
       subtext: 'Categories'
     },
     {
       title: 'Total Revenue',
       value: `₹${(stats.totalRevenue / 1000).toFixed(1)}K`,
       icon: TrendingUp,
-      color: 'bg-gradient-to-br from-[#6C5CE7] to-[#5F3DC4]',
+      color: 'bg-zinc-950 text-white',
       subtext: 'From Paid Orders'
     }
   ];
@@ -173,16 +173,16 @@ export const Dashboard: React.FC = () => {
       <div className="bg-white rounded-lg border border-[#E8E8E8] p-6">
         <h2 className="text-[16px] font-bold text-[#212121] mb-4">Statistics Overview</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          <div className="p-4 bg-gradient-to-br from-[#FF6B6B]/10 to-[#FF5252]/10 rounded-lg border border-[#FF6B6B]/20">
-            <p className="text-[12px] text-[#FF6B6B] font-semibold">Total Orders</p>
+          <div className="p-4 bg-zinc-50 border border-zinc-200 rounded-lg">
+            <p className="text-[11px] uppercase tracking-wider text-[#999] font-medium">Total Orders</p>
             <p className="text-[20px] font-bold text-[#212121] mt-2">{stats.totalOrders}</p>
           </div>
-          <div className="p-4 bg-gradient-to-br from-[#4ECDC4]/10 to-[#44B8A8]/10 rounded-lg border border-[#4ECDC4]/20">
-            <p className="text-[12px] text-[#4ECDC4] font-semibold">Products</p>
+          <div className="p-4 bg-zinc-50 border border-zinc-200 rounded-lg">
+            <p className="text-[11px] uppercase tracking-wider text-[#999] font-medium">Products</p>
             <p className="text-[20px] font-bold text-[#212121] mt-2">{stats.totalProducts}</p>
           </div>
-          <div className="p-4 bg-gradient-to-br from-[#6C5CE7]/10 to-[#5F3DC4]/10 rounded-lg border border-[#6C5CE7]/20">
-            <p className="text-[12px] text-[#6C5CE7] font-semibold">Revenue</p>
+          <div className="p-4 bg-zinc-50 border border-zinc-200 rounded-lg">
+            <p className="text-[11px] uppercase tracking-wider text-[#999] font-medium">Revenue</p>
             <p className="text-[20px] font-bold text-[#212121] mt-2">₹{(stats.totalRevenue / 1000).toFixed(1)}K</p>
           </div>
         </div>

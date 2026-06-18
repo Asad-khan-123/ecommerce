@@ -2,53 +2,116 @@ import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useProducts } from '../context/ProductContext';
 import ProductCard from '../components/ProductCard';
+import RecentlyViewed from '../components/RecentlyViewed';
+import { bannerApi } from '../utils/api';
+import { useState } from 'react';
 
 const Home = () => {
   const { products, loading, error, fetchProducts } = useProducts();
+  const [activeBanner, setActiveBanner] = useState<any>(null);
+  const [highlights, setHighlights] = useState<any[]>([]);
 
   useEffect(() => {
     fetchProducts({ limit: 4 });
+    const fetchBanner = async () => {
+      try {
+        const res = await bannerApi.getActiveBanner();
+        if (res.success && res.data) {
+          setActiveBanner(res.data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch banner', err);
+      }
+    };
+    const fetchHighlights = async () => {
+      try {
+        const res = await bannerApi.getHighlights();
+        if (res.success && res.data) {
+          setHighlights(res.data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch highlights', err);
+      }
+    };
+    fetchBanner();
+    fetchHighlights();
   }, [fetchProducts]);
-
 
   return (
     <div className="min-h-screen bg-white font-['Poppins']">
 
       {/* ── Hero Banner ── */}
-      <section className="relative flex h-[70vh] min-h-[480px] items-end overflow-hidden bg-[#1A1A1A]">
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-        <div
-          className="absolute inset-0 opacity-[0.04]"
-          style={{
-            backgroundImage:
-              'repeating-linear-gradient(0deg,#fff 0,#fff 1px,transparent 1px,transparent 80px), repeating-linear-gradient(90deg,#fff 0,#fff 1px,transparent 1px,transparent 80px)',
-          }}
-        />
-        <div className="relative z-10 w-full px-8 pb-16 text-white max-w-[1440px] mx-auto">
-          <p className="mb-2 text-[10px] tracking-[0.35em] uppercase text-white/60">
-            New Collection — SS26
-          </p>
-          <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-light leading-[1.05] tracking-tight">
-            Defined by Detail.
-            <br />
-            <em className="italic">Worn by Few.</em>
-          </h1>
-          <div className="mt-8 flex items-center gap-6">
-            <a
-              href="#products"
-              className="inline-block border border-white px-8 py-3 text-[11px] tracking-[0.2em] uppercase text-white transition-colors hover:bg-white hover:text-[#212121]"
-            >
-              Shop Now
-            </a>
-            <a
-              href="/products"
-              className="text-[11px] tracking-[0.15em] uppercase text-white/70 underline underline-offset-4 hover:text-white"
-            >
-              Explore All →
-            </a>
+      {activeBanner ? (
+        <section className="relative w-full">
+          {activeBanner.link ? (
+            <div className="relative group w-full">
+              <Link to={`/${activeBanner.link}`} className="block w-full">
+                <picture>
+                  <source media="(max-width: 768px)" srcSet={activeBanner.mobileImage} />
+                  <img 
+                    src={activeBanner.desktopImage} 
+                    alt="Hero Banner" 
+                    className="w-full h-auto object-cover"
+                  />
+                </picture>
+              </Link>
+              {/* Overlay Button */}
+              <div className="absolute bottom-[10%] left-1/2 -translate-x-1/2 z-10">
+                <Link
+                  to={`/${activeBanner.link}`}
+                  className="inline-block bg-white hover:bg-[#212121] text-[#212121] hover:text-white border border-[#212121]/10 px-8 py-3.5 text-[11px] tracking-[0.2em] uppercase font-semibold transition-all duration-300 shadow-md hover:shadow-lg rounded"
+                >
+                  Latest Collection
+                </Link>
+              </div>
+            </div>
+          ) : (
+            <picture>
+              <source media="(max-width: 768px)" srcSet={activeBanner.mobileImage} />
+              <img 
+                src={activeBanner.desktopImage} 
+                alt="Hero Banner" 
+                className="w-full h-auto object-cover"
+              />
+            </picture>
+          )}
+        </section>
+      ) : (
+        <section className="relative flex h-[70vh] min-h-[480px] items-end overflow-hidden bg-[#1A1A1A]">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+          <div
+            className="absolute inset-0 opacity-[0.04]"
+            style={{
+              backgroundImage:
+                'repeating-linear-gradient(0deg,#fff 0,#fff 1px,transparent 1px,transparent 80px), repeating-linear-gradient(90deg,#fff 0,#fff 1px,transparent 1px,transparent 80px)',
+            }}
+          />
+          <div className="relative z-10 w-full px-8 pb-16 text-white max-w-[1440px] mx-auto">
+            <p className="mb-2 text-[10px] tracking-[0.35em] uppercase text-white/60">
+              New Collection — SS26
+            </p>
+            <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-light leading-[1.05] tracking-tight">
+              Defined by Detail.
+              <br />
+              <em className="italic">Worn by Few.</em>
+            </h1>
+            <div className="mt-8 flex items-center gap-6">
+              <a
+                href="#products"
+                className="inline-block border border-white px-8 py-3 text-[11px] tracking-[0.2em] uppercase text-white transition-colors hover:bg-white hover:text-[#212121]"
+              >
+                Shop Now
+              </a>
+              <Link
+                to="/products"
+                className="text-[11px] tracking-[0.15em] uppercase text-white/70 underline underline-offset-4 hover:text-white"
+              >
+                Explore All →
+              </Link>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ── Marquee Ticker ── */}
       <div className="overflow-hidden border-y border-[#E8E8E8] bg-white py-3">
@@ -117,6 +180,32 @@ const Home = () => {
         )}
       </section>
 
+      {/* ── Collection Cards Grid ── */}
+      {highlights.length > 0 && (
+        <section className="px-8 pb-24 max-w-[1440px] mx-auto bg-white">
+          <div className="flex flex-wrap justify-center gap-6 lg:gap-8">
+            {highlights.map((hl) => (
+              <Link
+                key={hl._id}
+                to={hl.link}
+                className="group relative block w-full max-w-[502px] aspect-[502/547] md:w-[502px] md:h-[547px] overflow-hidden bg-neutral-100 shadow-sm"
+              >
+                <img
+                  src={hl.imageUrl}
+                  alt={hl.label}
+                  className="w-full h-full object-cover object-top origin-top transition-transform duration-700 ease-out group-hover:scale-105"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors duration-300" />
+                <span className="absolute left-8 top-8 text-white uppercase text-[11px] font-semibold tracking-[0.2em]">
+                  {hl.label}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* ── Editorial Strip ── */}
       <section className="bg-[#1A1A1A] px-8 py-20 text-center text-white">
         <p className="mb-3 text-[10px] tracking-[0.4em] uppercase text-white/40">The 431-88 Philosophy</p>
@@ -126,6 +215,9 @@ const Home = () => {
           Every seam is a decision."
         </p>
       </section>
+
+      {/* Recently Viewed Products */}
+      <RecentlyViewed />
 
       <style>{`
         @keyframes marquee {

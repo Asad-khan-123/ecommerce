@@ -66,6 +66,26 @@ const productSchema = new mongoose.Schema({
   isActive: {
     type: Boolean,
     default: true
+  },
+  fabricMaterials: {
+    type: String,
+    trim: true,
+    default: ""
+  },
+  sizeModel: {
+    type: String,
+    trim: true,
+    default: ""
+  },
+  fitConstruction: {
+    type: String,
+    trim: true,
+    default: ""
+  },
+  shippingReturns: {
+    type: String,
+    trim: true,
+    default: ""
   }
 }, {
   timestamps: true
