@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, type FormEvent } from 'react';
-import { FaInstagram, FaFacebookF, FaTwitter } from 'react-icons/fa';
+import { FaInstagram } from 'react-icons/fa';
 
 const announcements = [
   'Tailored Fits & Custom Orders',
@@ -77,14 +77,8 @@ const NewsletterWithAnnouncement = () => {
 
           {/* Social Icons */}
           <div className="mt-8 flex items-center justify-center gap-x-6">
-            <a href="https://instagram.com" target="_blank" rel="noreferrer" aria-label="Instagram">
+            <a href="https://www.instagram.com/iamtrouble_kc" target="_blank" rel="noreferrer" aria-label="Instagram">
               <FaInstagram size={18} className="text-[#212121]" />
-            </a>
-            <a href="https://facebook.com" target="_blank" rel="noreferrer" aria-label="Facebook">
-              <FaFacebookF size={18} className="text-[#212121]" />
-            </a>
-            <a href="https://x.com" target="_blank" rel="noreferrer" aria-label="X">
-              <FaTwitter size={16} className="text-[#212121]" />
             </a>
           </div>
 

@@ -91,7 +91,7 @@ export const Login: React.FC = () => {
             Sign in to your account
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Welcome to 431-88 E-commerce
+            Welcome to I AM TROUBLE BY KC
           </p>
         </div>
 

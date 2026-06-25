@@ -7,6 +7,7 @@ import { User, Search, ShoppingBag, Menu, X, LogOut } from 'lucide-react';
 import { CartDrawer } from './CartDrawer';
 import type { Product } from '../context/ProductContext';
 import ProductCard from './ProductCard';
+import logoImg from '../assets/logo.jpeg';
 
 interface MenuItemData {
   _id: string;
@@ -144,6 +145,14 @@ const Navbar = () => {
           {/* Left: Desktop Nav Links with Mega Menu */}
           <nav className="hidden lg:block">
             <ul className="flex items-center gap-x-8">
+              <li>
+                <Link
+                  to="/"
+                  className={`text-[12px] hover:underline hover:underline-offset-[6px] hover:decoration-current transition-colors duration-300 ${textColorClass}`}
+                >
+                  HOME
+                </Link>
+              </li>
               {menuItems.map((menuItem) => (
                 <li
                   key={menuItem._id}
@@ -279,9 +288,13 @@ const Navbar = () => {
           </button>
 
           {/* Center: Logo */}
-          <div className="absolute left-1/2 -translate-x-1/2">
-            <Link to="/" className={`text-[20px] font-bold transition-colors duration-300 ${textColorClass}`}>
-              I AM TROUBLE
+          <div className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center h-full">
+            <Link to="/" className="flex items-center justify-center">
+              <img
+                src={logoImg}
+                alt="I AM TROUBLE BY KC"
+                className="h-11 md:h-14 w-auto object-contain max-h-[54px] transition-transform duration-300 hover:scale-105"
+              />
             </Link>
           </div>
 
@@ -353,6 +366,15 @@ const Navbar = () => {
         <div className="border-t border-gray-200 bg-white lg:hidden">
           <nav className="px-6 py-4">
             <ul className="space-y-4">
+              <li>
+                <Link
+                  to="/"
+                  className="block text-[12px] font-medium text-[#212121]"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  HOME
+                </Link>
+              </li>
               {menuItems.map((menuItem) => (
                 <li key={menuItem._id}>
                   <button

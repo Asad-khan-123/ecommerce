@@ -57,7 +57,7 @@ const RazorpayModal: React.FC<{
               </div>
               <div>
                 <p className="text-[11px] opacity-80 uppercase tracking-widest">Secure Payment</p>
-                <p className="text-[13px] font-semibold tracking-wide">431-88</p>
+                <p className="text-[13px] font-semibold tracking-wide">I AM TROUBLE BY KC</p>
               </div>
             </div>
             <button onClick={onClose} className="opacity-70 hover:opacity-100 transition-opacity">

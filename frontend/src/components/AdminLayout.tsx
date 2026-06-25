@@ -39,7 +39,7 @@ export const AdminLayout: React.FC = () => {
         <div className="p-6 space-y-8">
           {/* Logo */}
           <div>
-            <h1 className="text-[16px] font-bold tracking-[0.05em]">431-88</h1>
+            <h1 className="text-[16px] font-bold tracking-[0.05em]">I AM TROUBLE BY KC</h1>
             <p className="text-[11px] text-[#999] tracking-[0.1em] mt-1">ADMIN PANEL</p>
           </div>
 

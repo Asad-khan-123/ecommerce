@@ -19,6 +19,10 @@ import { ProductManager } from './pages/admin/ProductManager';
 import Checkout from './pages/Checkout';
 import OrderSuccess from './pages/OrderSuccess';
 import { OrderManager } from './pages/admin/OrderManager';
+import Faq from './pages/Faq';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfService from './pages/TermsOfService';
+import About from './pages/About';
 
 /* Shared layout for all public-facing pages: Navbar + content + Newsletter + Footer */
 const PublicLayout = () => {
@@ -68,6 +72,10 @@ function App() {
               <Route element={<PublicLayout />}>
                 <Route path="/" element={<Home />} />
                 <Route path="/account" element={<Account />} />
+                <Route path="/faq" element={<Faq />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/policies/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/policies/terms-of-service" element={<TermsOfService />} />
                 <Route path="/:menuSlug" element={<Collection />} />
                 <Route path="/:menuSlug/:itemSlug" element={<Collection />} />
                 <Route path="/products/:slug" element={<Pdp />} />

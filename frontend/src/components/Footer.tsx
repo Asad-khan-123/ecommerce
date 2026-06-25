@@ -9,25 +9,25 @@ interface FooterLink {
 
 const companyLinks: FooterLink[] = [
   { label: 'About Us', href: '/about' },
-  { label: 'Shweta Kapur', href: '/shweta-kapur' },
-  { label: 'Tribe-88', href: '/tribe-88' },
-  { label: 'Stockists', href: '/stockists' },
+  { label: 'Our Story', href: '/about' },
+  { label: 'Contact Us', href: '/contact' },
   { label: 'Subscribe', href: '/subscribe' },
-  { label: 'Contact', href: '/contact' },
 ];
 
 const customerCareLinks: FooterLink[] = [
-  { label: 'FAQs', href: '/faqs' },
-  { label: 'Delivery or Shipping', href: '/shipping' },
+  { label: 'FAQs', href: '/faq' },
+  { label: 'Delivery & Shipping', href: '/shipping' },
   { label: 'Refund Policy', href: '/refund-policy' },
   { label: 'Payments', href: '/payments' },
+  { label: 'Privacy Policy', href: '/policies/privacy-policy' },
+  { label: 'Terms of Service', href: '/policies/terms-of-service' },
   { label: 'Inquiries', href: '/inquiries' },
 ];
 
 const contactLinks: FooterLink[] = [
-  { label: 'Call us at +918512843188', href: 'tel:+918512843188', external: true },
-  { label: 'Email customercare@431-88.com', href: 'mailto:customercare@431-88.com', external: true },
-  { label: 'Chat on Whatsapp', href: 'https://wa.me/918512843188', external: true },
+  { label: 'Call / WhatsApp: +91 9599022295', href: 'tel:+919599022295', external: true },
+  { label: 'Email: cc@iamtroublebykc.com', href: 'mailto:cc@iamtroublebykc.com', external: true },
+  { label: 'Chat on WhatsApp', href: 'https://wa.me/919599022295', external: true },
 ];
 
 // FC type hata diya, direct arrow function
@@ -44,17 +44,15 @@ const Footer = () => {
           <div className="md:col-span-2 lg:col-span-1">
             <h3 className="mb-5 text-[14.4px] font-medium text-[#212121]">About Us</h3>
             <p className="my-[7.2px] text-[14.4px] leading-relaxed text-[#212121]">
-              431-88 is a contemporary Indian design label founded by Shweta Kapur. Based in New Delhi,
-              the brand creates modern womenswear shaped by clarity, structure, and ease —
-              spanning saris, bridal and occasion wear, everyday essentials, accessories, and
-              menswear for contemporary life.
+              I AM TROUBLE BY KC is a Delhi-based RTW and Made-To-Measure fashion label founded by
+              Kunal Chatterjee in 2015. Our collections are notoriously colourful, bold, and exude an
+              element of quirk — drawn from high street referencing with a directional vision, not trends.
             </p>
 
             <h4 className="mb-2.5 mt-5 text-[14.4px] font-medium text-[#212121]">Main Office</h4>
             <address className="not-italic text-[14.4px] leading-relaxed text-[#212121]">
-              Shwetambara Enterprises<br />
-              No. 38, 1st Floor, Sector 27/A,<br />
-              Faridabad Haryana — 121003
+              B 115 B, Opposite South Park Apartments,<br />
+              Kalkaji, New Delhi — 110019
             </address>
           </div>
 

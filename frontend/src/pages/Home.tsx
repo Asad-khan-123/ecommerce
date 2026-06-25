@@ -121,7 +121,7 @@ const Home = () => {
         >
           {Array.from({ length: 6 }).map((_, i) => (
             <span key={i}>
-              Free Shipping on Orders Over $150 &nbsp;·&nbsp; New Arrivals Every Week &nbsp;·&nbsp; 431-88 Studio &nbsp;·&nbsp; Curated Essentials
+              Free Shipping Available &nbsp;·&nbsp; RTW &amp; Made-To-Measure &nbsp;·&nbsp; I AM TROUBLE BY KC &nbsp;·&nbsp; New Delhi, India
             </span>
           ))}
         </div>
@@ -208,11 +208,11 @@ const Home = () => {
 
       {/* ── Editorial Strip ── */}
       <section className="bg-[#1A1A1A] px-8 py-20 text-center text-white">
-        <p className="mb-3 text-[10px] tracking-[0.4em] uppercase text-white/40">The 431-88 Philosophy</p>
+        <p className="mb-3 text-[10px] tracking-[0.4em] uppercase text-white/40">The I AM TROUBLE Philosophy</p>
         <p className="mx-auto max-w-xl text-[clamp(1.1rem,2.5vw,1.6rem)] font-light leading-relaxed text-white/80">
-          "Clothing is architecture for the body.
+          "I Am Trouble has always been the spirit of the brand.
           <br />
-          Every seam is a decision."
+          Every piece carries the signature of its creator."
         </p>
       </section>
 

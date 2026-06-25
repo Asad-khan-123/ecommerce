@@ -83,7 +83,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
       </div>
 
       {/* Product Info - Exact 431-88 Style */}
-      <div className="px-0 py-2.5">
+      <div className="px-4 py-2.5">
         <h3 className="text-[12px] font-normal text-[#212121] line-clamp-2 leading-normal">
           {product.title}
         </h3>
