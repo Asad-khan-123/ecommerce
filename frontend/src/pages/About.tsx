@@ -29,13 +29,13 @@ const About = () => {
               The Brand
             </h2>
             <p className="text-[13px] md:text-[14px] leading-relaxed text-[#666] font-light">
-              Label <strong>I AM TROUBLE BY KC</strong> is a New Delhi (India) based RTW (Ready-To-Wear) and Made To Measure fashion label founded by designer <strong>Kunal Chatterjee</strong> in the year 2015.
+              Label <strong>I AM TROUBLE BY KC</strong> is a New Delhi (India) based RTW  and Made To Measure fashion label founded by <strong>Kunal Chatterjee</strong> in the year 2015.
             </p>
             <p className="text-[13px] md:text-[14px] leading-relaxed text-[#666] font-light">
-              The label curates collections from the expressions of self-experiences in the journey of life. The workmanship of this label is notoriously colourful, bold, and exudes a strong element of quirk.
+              The label curates collections from expression of self-experiences in the journey of life. workmanship of this label are notoriously colourful, bold, and exude an element of quirk.
             </p>
             <p className="text-[13px] md:text-[14px] leading-relaxed text-[#666] font-light">
-              Our design philosophy is not trend-driven, but focused on a directional vision that draws heavily from high street referencing, creating pieces that stand out as art statements.
+              Our design philosophy is not trend-driven, but focused on a directional vision that draws from high street referencing.
             </p>
           </div>
         </div>

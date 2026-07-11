@@ -91,7 +91,7 @@ const PrivacyPolicy = () => {
               For more information about our privacy practices, if you have questions, or if you would like to make a complaint, please contact us by e-mail or post using the details provided below:
             </p>
             <address className="not-italic text-[13px] text-[#666] leading-relaxed pl-4 border-l-2 border-[#E8E8E8]">
-              <strong>I AM TROUBLE BY KC</strong><br />
+              <strong>EVOLVE CLOTHING & TEXTILES</strong><br />
               Business Registration (GST): 07AGVPC8741P3ZH<br />
               B 115 B, Opposite South Park Apartments,<br />
               Kalkaji, New Delhi — 110019<br />

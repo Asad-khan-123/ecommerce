@@ -17,6 +17,7 @@ interface Column {
 interface Image {
   imageUrl: string;
   imageTitle: string;
+  link?: string;
   order: number;
 }
 
@@ -212,6 +213,7 @@ export const MenuManager = () => {
         const newImage: Image = {
           imageUrl: result.imageUrl,
           imageTitle: 'New Image',
+          link: '',
           order: (selectedMenuItem.images?.length || 0)
         };
         setSelectedMenuItem({
@@ -620,41 +622,100 @@ export const MenuManager = () => {
                     </div>
 
                     {/* Images Grid */}
-                    {selectedMenuItem.images?.length === 0 ? (
-                      <div className="text-center py-8">
-                        <p className="text-[13px] text-[#999]">No images yet</p>
-                      </div>
-                    ) : (
-                      <div className="grid grid-cols-2 gap-4">
-                        {selectedMenuItem.images?.map((image, imgIndex) => (
-                          <div key={imgIndex} className="relative bg-[#F5F5F5] rounded-lg overflow-hidden border border-[#E8E8E8] group">
-                            <img
-                              src={image.imageUrl}
-                              alt={image.imageTitle}
-                              className="w-full h-32 object-cover"
-                            />
-                            <input
-                              type="text"
-                              placeholder="Image title"
-                              value={image.imageTitle}
-                              onChange={(e) => {
-                                const updatedImages = [...selectedMenuItem.images];
-                                updatedImages[imgIndex].imageTitle = e.target.value;
-                                setSelectedMenuItem({ ...selectedMenuItem, images: updatedImages });
-                              }}
-                              className="w-full px-3 py-2 border-t border-[#E8E8E8] text-[11px] focus:outline-none focus:ring-1 focus:ring-[#212121] bg-white"
-                            />
-                            <button
-                              onClick={() => handleDeleteImage(imgIndex)}
-                              className="absolute top-2 right-2 p-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors opacity-0 group-hover:opacity-100"
-                              title="Delete"
-                            >
-                              <Trash2 size={14} />
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                    {(() => {
+                      const availableLinks: string[] = [];
+                      if (selectedMenuItem) {
+                        availableLinks.push(`/${selectedMenuItem.slug}`);
+                        selectedMenuItem.columns?.forEach((col) => {
+                          col.items?.forEach((item) => {
+                            if (item.link && !availableLinks.includes(item.link)) {
+                              availableLinks.push(item.link);
+                            }
+                          });
+                        });
+                      }
+
+                      return selectedMenuItem.images?.length === 0 ? (
+                        <div className="text-center py-8">
+                          <p className="text-[13px] text-[#999]">No images yet</p>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-2 gap-4">
+                          {selectedMenuItem.images?.map((image, imgIndex) => (
+                            <div key={imgIndex} className="relative bg-[#F5F5F5] rounded-lg overflow-hidden border border-[#E8E8E8] group flex flex-col justify-between">
+                              <div>
+                                <div className="relative">
+                                  <img
+                                    src={image.imageUrl}
+                                    alt={image.imageTitle}
+                                    className="w-full h-32 object-cover"
+                                  />
+                                  <button
+                                    onClick={() => handleDeleteImage(imgIndex)}
+                                    className="absolute top-2 right-2 p-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors opacity-0 group-hover:opacity-100"
+                                    title="Delete"
+                                  >
+                                    <Trash2 size={14} />
+                                  </button>
+                                </div>
+                                <div className="p-3 space-y-3">
+                                  <div>
+                                    <label className="block text-[9px] uppercase tracking-[0.05em] text-[#999] mb-1 font-semibold">Image Title</label>
+                                    <input
+                                      type="text"
+                                      placeholder="Image title"
+                                      value={image.imageTitle}
+                                      onChange={(e) => {
+                                        const updatedImages = [...selectedMenuItem.images];
+                                        updatedImages[imgIndex].imageTitle = e.target.value;
+                                        setSelectedMenuItem({ ...selectedMenuItem, images: updatedImages });
+                                      }}
+                                      className="w-full px-2 py-1.5 border border-[#D8D8D8] rounded text-[11px] focus:outline-none focus:ring-1 focus:ring-[#212121] bg-white"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-[9px] uppercase tracking-[0.05em] text-[#999] mb-1 font-semibold">Select Redirect Link</label>
+                                    <select
+                                      value={image.link || ''}
+                                      onChange={(e) => {
+                                        const updatedImages = [...selectedMenuItem.images];
+                                        updatedImages[imgIndex].link = e.target.value;
+                                        setSelectedMenuItem({ ...selectedMenuItem, images: updatedImages });
+                                      }}
+                                      className="w-full px-2 py-1.5 border border-[#D8D8D8] rounded text-[11px] focus:outline-none bg-white"
+                                    >
+                                      <option value="">No Redirect Link</option>
+                                      {availableLinks.map((linkOption) => (
+                                        <option key={linkOption} value={linkOption}>
+                                          {linkOption}
+                                        </option>
+                                      ))}
+                                      {image.link && !availableLinks.includes(image.link) && (
+                                        <option value={image.link}>{image.link} (Custom)</option>
+                                      )}
+                                    </select>
+                                  </div>
+                                  <div>
+                                    <label className="block text-[9px] uppercase tracking-[0.05em] text-[#999] mb-1 font-semibold">Or Enter Custom Link</label>
+                                    <input
+                                      type="text"
+                                      placeholder="e.g., /shop"
+                                      value={image.link || ''}
+                                      onChange={(e) => {
+                                        const updatedImages = [...selectedMenuItem.images];
+                                        updatedImages[imgIndex].link = e.target.value;
+                                        setSelectedMenuItem({ ...selectedMenuItem, images: updatedImages });
+                                      }}
+                                      className="w-full px-2 py-1.5 border border-[#D8D8D8] rounded text-[11px] focus:outline-none bg-white"
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    })()}
                   </div>
                 )}
               </div>

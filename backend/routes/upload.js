@@ -1,11 +1,15 @@
 import express from 'express';
 import multer from 'multer';
-import CloudinaryStorage from 'multer-storage-cloudinary';
-import cloudinary from '../config/cloudinary.js';
+import CloudinaryStoragePkg from 'multer-storage-cloudinary';
+import cloudinary from 'cloudinary';
+import '../config/cloudinary.js'; // Ensures cloudinary.config is executed
 import { uploadImage } from '../controllers/upload.js';
 import { protect, adminOnly } from '../middlewares/authmiddleware.js';
 
-const storage = new CloudinaryStorage({
+// Support both default and named exports for multer-storage-cloudinary
+const CloudinaryStorage = CloudinaryStoragePkg.CloudinaryStorage || CloudinaryStoragePkg;
+
+const storage = CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: 'ecommerce/menu',

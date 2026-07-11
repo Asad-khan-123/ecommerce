@@ -15,30 +15,41 @@ import settingsRoutes from './routes/settings.js';
 
 const app = express();
 
-// CORS Configuration - Allow multiple origins
+// CORS Configuration - Restrict origins in production
+const isProduction = process.env.NODE_ENV === 'production';
+
 const allowedOrigins = [
-  'http://localhost:5173',           // Local development (Vite)
-  'http://localhost:3000',           // Alternative local dev
-  'http://127.0.0.1:5173',          // Localhost alternative
-  'http://127.0.0.1:3000',          // Localhost alternative
-  'http://192.168.29.172:5173',     // Your local network IP
-  'http://192.168.29.172:3000',     // Your local network IP (alt)
-  'https://ecommerce-qchr.onrender.com', // Render backend
-  'http://localhost:3001',           // Another common port
-  'http://192.168.0.0/16',          // Any local network IP (if needed)
+  ...ENV.ALLOWED_ORIGINS
 ];
+
+// Allow localhost only in development mode
+if (!isProduction) {
+  allowedOrigins.push(
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'http://127.0.0.1:5173',
+    'http://127.0.0.1:3000',
+    'http://localhost:3001'
+  );
+}
 
 const corsOptions = {
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
 
-    // Check if origin is in allowed list or matches local network pattern
-    if (allowedOrigins.includes(origin) || origin.includes('192.168')) {
+    const isAllowed = allowedOrigins.includes(origin) || (!isProduction && origin.includes('192.168'));
+
+    if (isAllowed) {
       callback(null, true);
     } else {
       console.log('CORS blocked origin:', origin);
-      callback(null, true); // Allow anyway for development, change to callback(new Error('Not allowed by CORS')) for production
+      if (isProduction) {
+        callback(new Error('Not allowed by CORS'));
+      } else {
+        // Fallback for local development testing
+        callback(null, true);
+      }
     }
   },
   credentials: true,

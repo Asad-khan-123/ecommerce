@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { orderApi, productApi } from '../utils/api';
-import { ChevronRight, X, Lock, CheckCircle, AlertCircle } from 'lucide-react';
+import { ChevronRight, Lock } from 'lucide-react';
 
 interface OrderItem {
   product: string;
@@ -15,136 +15,7 @@ interface OrderItem {
   quantity: number;
 }
 
-// ── Mock Razorpay Modal ──────────────────────────────────────────────────────
-const RazorpayModal: React.FC<{
-  amount: number;
-  onSuccess: (paymentId: string) => void;
-  onFailure: () => void;
-  onClose: () => void;
-}> = ({ amount, onSuccess, onClose }) => {
-  const [processing, setProcessing] = useState(false);
-  const [failed, setFailed] = useState(false);
 
-  const handleSuccess = () => {
-    setProcessing(true);
-    setTimeout(() => {
-      const fakeId = `pay_mock_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-      onSuccess(fakeId);
-    }, 2200);
-  };
-
-  const handleFail = () => {
-    setProcessing(true);
-    setTimeout(() => {
-      setProcessing(false);
-      setFailed(true);
-    }, 1500);
-  };
-
-  return (
-    <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
-
-      {/* Modal */}
-      <div className="relative bg-white w-full max-w-[380px] rounded-lg overflow-hidden shadow-2xl font-['Poppins']">
-        {/* Razorpay Header (matching official UI) */}
-        <div className="bg-[#2D81F7] px-6 py-5 text-white">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                <span className="text-[11px] font-bold">R</span>
-              </div>
-              <div>
-                <p className="text-[11px] opacity-80 uppercase tracking-widest">Secure Payment</p>
-                <p className="text-[13px] font-semibold tracking-wide">I AM TROUBLE BY KC</p>
-              </div>
-            </div>
-            <button onClick={onClose} className="opacity-70 hover:opacity-100 transition-opacity">
-              <X size={18} />
-            </button>
-          </div>
-          <div className="bg-white/10 rounded-md px-4 py-3">
-            <p className="text-[11px] opacity-80 uppercase tracking-widest mb-1">Amount to Pay</p>
-            <p className="text-[26px] font-semibold">₹ {amount.toLocaleString('en-IN')}</p>
-          </div>
-        </div>
-
-        {/* Body */}
-        <div className="p-6">
-          {!failed ? (
-            <>
-              <div className="flex items-center gap-2 mb-5">
-                <Lock size={13} className="text-[#999]" />
-                <p className="text-[11px] text-[#999] tracking-wide">Your payment is 100% secure</p>
-              </div>
-
-              {/* Test mode notice */}
-              <div className="bg-amber-50 border border-amber-200 rounded-md px-4 py-3 mb-5">
-                <p className="text-[11px] text-amber-700 font-medium mb-1">Test / Demo Mode</p>
-                <p className="text-[10px] text-amber-600 leading-relaxed">
-                  This is a simulated payment gateway. Use the buttons below to simulate payment outcomes.
-                </p>
-              </div>
-
-              <div className="space-y-3">
-                <button
-                  onClick={handleSuccess}
-                  disabled={processing}
-                  className="w-full bg-[#2D81F7] text-white py-3.5 text-[12px] font-medium tracking-[0.15em] uppercase rounded-md hover:bg-[#1a6de0] transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
-                >
-                  {processing ? (
-                    <>
-                      <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                      Processing Payment...
-                    </>
-                  ) : (
-                    <>
-                      <CheckCircle size={15} />
-                      Simulate Successful Payment
-                    </>
-                  )}
-                </button>
-                <button
-                  onClick={handleFail}
-                  disabled={processing}
-                  className="w-full border border-red-300 text-red-500 py-3 text-[11px] font-medium tracking-[0.15em] uppercase rounded-md hover:bg-red-50 transition-colors disabled:opacity-40 flex items-center justify-center gap-2"
-                >
-                  <AlertCircle size={14} />
-                  Simulate Payment Failure
-                </button>
-              </div>
-            </>
-          ) : (
-            <div className="text-center py-4">
-              <div className="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <X size={24} className="text-red-500" />
-              </div>
-              <p className="text-[14px] font-semibold text-[#212121] mb-2">Payment Failed</p>
-              <p className="text-[12px] text-[#999] mb-6 leading-relaxed">
-                Your payment could not be processed. Please try again or use a different payment method.
-              </p>
-              <div className="space-y-2">
-                <button
-                  onClick={() => { setFailed(false); setProcessing(false); }}
-                  className="w-full bg-[#2D81F7] text-white py-3 text-[11px] font-medium tracking-[0.15em] uppercase rounded-md hover:bg-[#1a6de0] transition-colors"
-                >
-                  Try Again
-                </button>
-                <button
-                  onClick={onClose}
-                  className="w-full border border-[#E8E8E8] text-[#999] py-3 text-[11px] font-medium tracking-[0.15em] uppercase rounded-md hover:border-[#212121] hover:text-[#212121] transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
 
 // ── Field component ─────────────────────────────────────────────────────────
 const Field: React.FC<{
@@ -187,7 +58,6 @@ const Checkout: React.FC = () => {
 
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
   const [loadingProduct, setLoadingProduct] = useState(false);
-  const [showRazorpay, setShowRazorpay] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   // Shipping form state
@@ -263,32 +133,93 @@ const Checkout: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handlePlaceOrder = () => {
-    if (!validate()) return;
-    setShowRazorpay(true);
+  const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
   };
 
-  const handlePaymentSuccess = async (paymentId: string) => {
-    setShowRazorpay(false);
+  const handlePlaceOrder = async () => {
+    if (!validate()) return;
+
     setSubmitting(true);
     try {
-      const res = await orderApi.createOrder({
-        items: orderItems,
-        shippingAddress: form,
-        paymentId,
-        paymentStatus: 'Paid',
-        subtotal,
-        shippingCost,
-        totalPrice,
-        clearCart: source === 'cart'
-      });
-      if (res.success) {
-        if (source === 'cart') clearCart();
-        navigate(`/order-success/${res.data._id}`);
+      const loaded = await loadRazorpayScript();
+      if (!loaded) {
+        alert('Razorpay SDK failed to load. Please check your internet connection.');
+        setSubmitting(false);
+        return;
       }
+
+      // Create Razorpay Order in Backend (Calculates price securely on database server)
+      const res = await orderApi.createRazorpayOrder({
+        items: orderItems,
+        shippingAddress: form
+      });
+
+      if (!res.success) {
+        alert(res.message || 'Failed to initialize payment order');
+        setSubmitting(false);
+        return;
+      }
+
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID || res.keyId || '',
+        amount: res.amount,
+        currency: res.currency,
+        name: 'I AM TROUBLE BY KC',
+        description: 'Order Payment',
+        order_id: res.orderId,
+        handler: async (paymentResponse: any) => {
+          setSubmitting(true);
+          try {
+            // Verify payment signature securely on backend and create order record
+            const verifyRes = await orderApi.verifyRazorpayPayment({
+              razorpay_order_id: paymentResponse.razorpay_order_id,
+              razorpay_payment_id: paymentResponse.razorpay_payment_id,
+              razorpay_signature: paymentResponse.razorpay_signature,
+              items: orderItems,
+              shippingAddress: form,
+              clearCart: source === 'cart'
+            });
+
+            if (verifyRes.success) {
+              if (source === 'cart') clearCart();
+              navigate(`/order-success/${verifyRes.data._id}`);
+            } else {
+              alert(verifyRes.message || 'Payment verification failed');
+            }
+          } catch (err) {
+            console.error('Payment verification API error:', err);
+            alert('An error occurred during payment verification.');
+          } finally {
+            setSubmitting(false);
+          }
+        },
+        prefill: {
+          name: form.fullName,
+          contact: form.phone,
+          email: user?.email || '',
+        },
+        theme: {
+          color: '#212121',
+        },
+        modal: {
+          ondismiss: () => {
+            setSubmitting(false);
+          }
+        }
+      };
+
+      const rzp = new (window as any).Razorpay(options);
+      rzp.open();
     } catch (err) {
-      console.error(err);
-    } finally {
+      console.error('Order checkout error:', err);
+      alert('An error occurred while setting up payment.');
       setSubmitting(false);
     }
   };
@@ -428,15 +359,6 @@ const Checkout: React.FC = () => {
         </div>
       </div>
 
-      {/* Mock Razorpay Modal */}
-      {showRazorpay && (
-        <RazorpayModal
-          amount={totalPrice}
-          onSuccess={handlePaymentSuccess}
-          onFailure={() => setShowRazorpay(false)}
-          onClose={() => setShowRazorpay(false)}
-        />
-      )}
     </div>
   );
 };

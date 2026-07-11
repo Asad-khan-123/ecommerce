@@ -23,6 +23,11 @@ import Faq from './pages/Faq';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
 import About from './pages/About';
+import Shipping from './pages/Shipping';
+import RefundPolicy from './pages/RefundPolicy';
+import PaymentsPage from './pages/PaymentsPage';
+import ScrollToTop from './components/ScrollToTop';
+import Contact from './pages/Contact';
 
 /* Shared layout for all public-facing pages: Navbar + content + Newsletter + Footer */
 const PublicLayout = () => {
@@ -44,6 +49,7 @@ const PublicLayout = () => {
 function App() {
   return (
     <Router>
+      <ScrollToTop />
       <AuthProvider>
         <ProductProvider>
           <CartProvider>
@@ -74,6 +80,10 @@ function App() {
                 <Route path="/account" element={<Account />} />
                 <Route path="/faq" element={<Faq />} />
                 <Route path="/about" element={<About />} />
+                <Route path="/shipping" element={<Shipping />} />
+                <Route path="/refund-policy" element={<RefundPolicy />} />
+                <Route path="/payments" element={<PaymentsPage />} />
+                <Route path="/contact" element={<Contact />} />
                 <Route path="/policies/privacy-policy" element={<PrivacyPolicy />} />
                 <Route path="/policies/terms-of-service" element={<TermsOfService />} />
                 <Route path="/:menuSlug" element={<Collection />} />

@@ -95,7 +95,7 @@ const faqData: FaqSection[] = [
       {
         question: 'Are taxes refunded in the event of a return or cancellation?',
         answer:
-          'Yes — in the event of a return or cancellation, the entire amount paid including collected taxes is refunded. Please note that COD convenience charges are generally not refunded.',
+          'No, in the event of return or cancellation the entire amount including collected taxes will be adjusted on your next purchase.',
       },
     ],
   },

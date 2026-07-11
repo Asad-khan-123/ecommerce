@@ -5,7 +5,8 @@ import {
   getAllProductsAdmin,
   getProductBySlug,
   updateProduct,
-  deleteProduct
+  deleteProduct,
+  createProductReview
 } from '../controllers/product.js';
 import { protect, adminOnly } from '../middlewares/authmiddleware.js';
 
@@ -14,6 +15,9 @@ const router = express.Router();
 // Public routes
 router.get('/', getProducts);
 router.get('/slug/:slug', getProductBySlug);
+
+// User routes (Protected)
+router.post('/:id/reviews', protect, createProductReview);
 
 // Admin routes (Protected)
 router.get('/admin/all', protect, adminOnly, getAllProductsAdmin);

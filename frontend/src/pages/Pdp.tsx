@@ -7,6 +7,7 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import ProductCard from '../components/ProductCard';
 import RecentlyViewed from '../components/RecentlyViewed';
+import { productApi } from '../utils/api';
 
 /* ─────────────────────────────────────────────────────────────
    Accordion Item
@@ -99,6 +100,13 @@ const Pdp = () => {
   const [notFound, setNotFound] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
+
+  // Reviews states
+  const [ratingInput, setRatingInput] = useState(5);
+  const [commentInput, setCommentInput] = useState('');
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const [reviewError, setReviewError] = useState<string | null>(null);
+  const [reviewSuccess, setReviewSuccess] = useState<string | null>(null);
 
   /* Fetch product on slug change */
   useEffect(() => {
@@ -277,6 +285,48 @@ const Pdp = () => {
     navigate(`/checkout?productId=${product.slug}&size=${encodeURIComponent(selectedSize)}&color=${encodeURIComponent(selectedColor || 'Default')}&qty=${quantity}`);
   };
 
+  const handleReviewSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!product) return;
+    if (!commentInput.trim()) {
+      setReviewError('Please enter a review comment');
+      return;
+    }
+    setSubmittingReview(true);
+    setReviewError(null);
+    setReviewSuccess(null);
+    try {
+      const response = await productApi.createProductReview(product._id, {
+        rating: ratingInput,
+        comment: commentInput.trim()
+      });
+      if (response.success && response.data) {
+        setProduct(response.data);
+        setCommentInput('');
+        setRatingInput(5);
+        setReviewSuccess('Thank you! Your review has been submitted.');
+      } else {
+        setReviewError(response.message || 'Failed to submit review');
+      }
+    } catch (err) {
+      setReviewError('An error occurred. Please try again.');
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
+
+  const renderStars = (rating: number) => {
+    return (
+      <div className="flex gap-0.5 text-black">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <span key={star} className="text-[14px]">
+            {star <= rating ? '★' : '☆'}
+          </span>
+        ))}
+      </div>
+    );
+  };
+
   /* ── Not Found ── */
   if (notFound) {
     return (
@@ -327,14 +377,14 @@ const Pdp = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2">
 
           {/* ── LEFT: Image Gallery ── */}
-          <div className="lg:sticky lg:top-[60px] lg:h-[calc(100vh-60px)] lg:overflow-y-auto pb-6">
-            <div className="relative">
+          <div className="lg:sticky lg:top-[60px] lg:h-[calc(100vh-80px)] flex flex-col justify-start pb-6 px-4 lg:px-8">
+            <div className="relative flex-grow flex items-center justify-center min-h-0 bg-[#F5F5F5] rounded overflow-hidden py-4">
               {product.images.length > 0 ? (
-                <div className="relative w-full aspect-[3/4] bg-[#F5F5F5]">
+                <div className="relative max-w-full max-h-[65vh] lg:max-h-[calc(100vh-220px)] aspect-[9/16] bg-[#F5F5F5] flex items-center justify-center overflow-hidden">
                   <img
                     src={product.images[activeImage]}
                     alt={`${product.title} — view ${activeImage + 1}`}
-                    className="w-full h-full object-cover animate-fade-in"
+                    className="max-w-full max-h-full object-contain animate-fade-in"
                   />
                   {/* Discount badge */}
                   {discount && (
@@ -352,7 +402,7 @@ const Pdp = () => {
                   )}
                 </div>
               ) : (
-                <div className="flex aspect-[3/4] items-center justify-center bg-[#F5F5F5]">
+                <div className="flex h-full w-full items-center justify-center bg-[#F5F5F5]">
                   <span className="text-[11px] tracking-widest uppercase text-[#999]">No Image</span>
                 </div>
               )}
@@ -360,12 +410,12 @@ const Pdp = () => {
 
             {/* Thumbnail Strip - for both Desktop & Mobile (shows other images small) */}
             {product.images.length > 1 && (
-              <div className="flex flex-wrap gap-2 mt-4 px-4 lg:px-0">
+              <div className="flex flex-wrap gap-2 mt-4 justify-center">
                 {product.images.map((img, idx) => (
                   <button
                     key={idx}
                     onClick={() => setActiveImage(idx)}
-                    className={`h-20 w-16 flex-shrink-0 overflow-hidden border transition-all duration-200 ${
+                    className={`h-16 w-12 flex-shrink-0 overflow-hidden border transition-all duration-200 ${
                       activeImage === idx 
                         ? 'border-[#212121] scale-102' 
                         : 'border-neutral-200 opacity-60 hover:opacity-100'
@@ -414,9 +464,9 @@ const Pdp = () => {
               </div>
 
               {/* Stock status */}
-              <p className={`mt-1.5 text-[11px] tracking-wide ${product.inStock ? 'text-green-600' : 'text-red-500'}`}>
+              {/* <p className={`mt-1.5 text-[11px] tracking-wide ${product.inStock ? 'text-green-600' : 'text-red-500'}`}>
                 {product.inStock ? `In Stock${product.inventory > 0 ? ` — ${product.inventory} left` : ''}` : 'Out of Stock'}
-              </p>
+              </p> */}
 
               {/* ── Variants ── */}
               <div className="mt-8 space-y-6">
@@ -579,9 +629,9 @@ const Pdp = () => {
                     {product.colors?.length > 0 && (
                       <li><span className="font-medium text-[#212121]">Available Colors:</span> {product.colors.join(', ')}</li>
                     )}
-                    {product.inStock !== undefined && (
+                    {/* {product.inStock !== undefined && (
                       <li><span className="font-medium text-[#212121]">Availability:</span> {product.inStock ? 'In Stock' : 'Out of Stock'}</li>
-                    )}
+                    )} */}
                     {product.inventory > 0 && (
                       <li><span className="font-medium text-[#212121]">Units Left:</span> {product.inventory}</li>
                     )}
@@ -597,6 +647,135 @@ const Pdp = () => {
               />
 
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Reviews Section ── */}
+      <div className="bg-white border-t border-[#E8E8E8] py-16 font-['Poppins']">
+        <div className="mx-auto max-w-[780px] px-6">
+          <h2 className="text-[12px] font-normal tracking-[0.3em] uppercase text-[#212121] mb-8 text-center">
+            Customer Reviews
+          </h2>
+
+          {/* Rating Summary block */}
+          <div className="flex flex-col items-center justify-center border-b border-[#E8E8E8] pb-10 mb-10 text-center">
+            <span className="text-[36px] font-light text-[#212121]">
+              {(product.rating || 0).toFixed(1)}
+            </span>
+            <div className="flex justify-center my-2 text-black">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <span key={star} className="text-[20px]">
+                  {star <= (product.rating || 0) ? '★' : '☆'}
+                </span>
+              ))}
+            </div>
+            <p className="text-[11px] uppercase tracking-wider text-[#888]">
+              Based on {product.numReviews || 0} {product.numReviews === 1 ? 'review' : 'reviews'}
+            </p>
+          </div>
+
+          {/* Reviews list */}
+          <div className="space-y-8 mb-16">
+            {product.reviews && product.reviews.length > 0 ? (
+              product.reviews.map((rev) => (
+                <div key={rev._id} className="border-b border-[#F5F5F5] pb-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[12px] font-medium text-[#212121]">{rev.name}</span>
+                    <span className="text-[11px] text-[#999]">
+                      {new Date(rev.createdAt).toLocaleDateString('en-IN', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
+                    </span>
+                  </div>
+                  <div className="mb-3">
+                    {renderStars(rev.rating)}
+                  </div>
+                  <p className="text-[12px] leading-relaxed text-[#666] font-light">
+                    {rev.comment}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <p className="text-[12px] text-center text-[#999] py-6 font-light">
+                No reviews yet. Be the first to write a review.
+              </p>
+            )}
+          </div>
+
+          {/* Leave a review section */}
+          <div className="bg-[#FDFDFD] border border-[#E8E8E8] p-8">
+            <h3 className="text-[11px] tracking-[0.25em] uppercase font-semibold text-[#212121] mb-6">
+              Write A Review
+            </h3>
+
+            {!user ? (
+              <p className="text-[12px] text-[#666] font-light">
+                Please{' '}
+                <Link to={`/login?redirect=${encodeURIComponent(window.location.pathname)}`} className="underline underline-offset-4 font-medium text-[#212121] hover:opacity-70">
+                  log in
+                </Link>{' '}
+                to write a review.
+              </p>
+            ) : (
+              <form onSubmit={handleReviewSubmit} className="space-y-5">
+                {/* Interactive Star rating selector */}
+                <div>
+                  <label className="block text-[11px] uppercase tracking-wider text-[#212121] mb-2">
+                    Rating
+                  </label>
+                  <div className="flex gap-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        type="button"
+                        key={star}
+                        onClick={() => setRatingInput(star)}
+                        className="text-[24px] text-black hover:scale-110 transition-transform focus:outline-none"
+                      >
+                        {star <= ratingInput ? '★' : '☆'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="review-comment" className="block text-[11px] uppercase tracking-wider text-[#212121] mb-2">
+                    Comment
+                  </label>
+                  <textarea
+                    id="review-comment"
+                    value={commentInput}
+                    onChange={(e) => setCommentInput(e.target.value)}
+                    required
+                    rows={4}
+                    placeholder="Share your experience with this product..."
+                    className="w-full px-4 py-3 border border-[#E8E8E8] focus:border-[#212121] outline-none text-[12px] bg-transparent transition-colors font-light resize-none"
+                  />
+                </div>
+
+                {reviewError && (
+                  <p className="text-[11px] font-medium text-red-500 tracking-wide">
+                    {reviewError}
+                  </p>
+                )}
+
+                {reviewSuccess && (
+                  <p className="text-[11px] font-medium text-green-600 tracking-wide">
+                    {reviewSuccess}
+                  </p>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={submittingReview}
+                  className="px-6 py-3.5 bg-[#212121] hover:bg-neutral-800 text-white uppercase text-[11px] font-medium tracking-widest transition-colors duration-300 disabled:opacity-50"
+                >
+                  {submittingReview ? 'Submitting...' : 'Submit Review'}
+                </button>
+              </form>
+            )}
           </div>
         </div>
       </div>

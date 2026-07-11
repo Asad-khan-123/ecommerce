@@ -3,13 +3,14 @@ import { Link } from 'react-router-dom';
 import { useProducts } from '../context/ProductContext';
 import ProductCard from '../components/ProductCard';
 import RecentlyViewed from '../components/RecentlyViewed';
-import { bannerApi } from '../utils/api';
+import { bannerApi, settingsApi } from '../utils/api';
 import { useState } from 'react';
 
 const Home = () => {
   const { products, loading, error, fetchProducts } = useProducts();
   const [activeBanner, setActiveBanner] = useState<any>(null);
   const [highlights, setHighlights] = useState<any[]>([]);
+  const [brandVideos, setBrandVideos] = useState<any[]>([]);
 
   useEffect(() => {
     fetchProducts({ limit: 4 });
@@ -33,9 +34,70 @@ const Home = () => {
         console.error('Failed to fetch highlights', err);
       }
     };
+    const fetchSettings = async () => {
+      try {
+        const res = await settingsApi.getSettings();
+        if (res.success && res.data) {
+          if (res.data.brandVideos) {
+            try {
+              const parsed = JSON.parse(res.data.brandVideos);
+              setBrandVideos(Array.isArray(parsed) ? parsed : []);
+            } catch (e) {
+              setBrandVideos([]);
+            }
+          } else {
+            const legacy = [];
+            if (res.data.brandPhotoshootVideo) legacy.push({ id: '1', title: '', videoUrl: res.data.brandPhotoshootVideo });
+            if (res.data.promotionalReelVideo) legacy.push({ id: '2', title: '', videoUrl: res.data.promotionalReelVideo });
+            setBrandVideos(legacy);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch brand videos', err);
+      }
+    };
     fetchBanner();
     fetchHighlights();
+    fetchSettings();
   }, [fetchProducts]);
+
+  const renderVideoPlayer = (url: string, title?: string) => {
+    if (!url) return null;
+
+    const isEmbed = url.includes('youtube.com') || url.includes('youtu.be') || url.includes('vimeo.com');
+
+    if (isEmbed) {
+      let embedUrl = url;
+      if (url.includes('watch?v=')) {
+        embedUrl = url.replace('watch?v=', 'embed/');
+      } else if (url.includes('youtu.be/')) {
+        embedUrl = url.replace('youtu.be/', 'youtube.com/embed/');
+      }
+      return (
+        <div className="aspect-video w-full">
+          <iframe
+            src={embedUrl}
+            title={title || 'Brand Video'}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            className="w-full h-full rounded-lg shadow-sm"
+          />
+        </div>
+      );
+    }
+
+    return (
+      <div className="aspect-video w-full bg-black rounded-lg overflow-hidden shadow-sm">
+        <video
+          src={url}
+          controls
+          playsInline
+          loop
+          className="w-full h-full object-cover"
+        />
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-white font-['Poppins']">
@@ -206,13 +268,33 @@ const Home = () => {
         </section>
       )}
 
-      {/* ── Editorial Strip ── */}
+      {/* Brand Media Section */}
+{brandVideos.filter(v => v.videoUrl).length > 0 && (
+  <section className="max-w-[1440px] mx-auto px-8 py-16 bg-white">
+    <div className="text-center mb-10">
+      <p className="text-[10px] tracking-[0.35em] uppercase text-[#999] mb-1">Visual Experience</p>
+      <h2 className="text-2xl font-light tracking-tight text-[#212121]">Brand Media</h2>
+    </div>
+    <div className={`grid grid-cols-1 ${brandVideos.filter(v => v.videoUrl).length === 1 ? 'max-w-2xl mx-auto' : brandVideos.filter(v => v.videoUrl).length === 2 ? 'md:grid-cols-2' : 'md:grid-cols-2 lg:grid-cols-3'} gap-8`}>
+      {brandVideos.filter(v => v.videoUrl).map((vid, i) => (
+        <div key={vid.id || i}>
+          {vid.title && (
+            <h3 className="text-xs uppercase tracking-widest font-semibold text-neutral-700 mb-3 text-center md:text-left">{vid.title}</h3>
+          )}
+          {renderVideoPlayer(vid.videoUrl, vid.title)}
+        </div>
+      ))}
+    </div>
+  </section>
+)}
+
+{/* ── Editorial Strip ── */}
       <section className="bg-[#1A1A1A] px-8 py-20 text-center text-white">
-        <p className="mb-3 text-[10px] tracking-[0.4em] uppercase text-white/40">The I AM TROUBLE Philosophy</p>
+        <p className="mb-3 text-[10px] tracking-[0.4em] uppercase text-white/40">Founder's Philosophy</p>
         <p className="mx-auto max-w-xl text-[clamp(1.1rem,2.5vw,1.6rem)] font-light leading-relaxed text-white/80">
           "I Am Trouble has always been the spirit of the brand.
           <br />
-          Every piece carries the signature of its creator."
+          As the level evolves Every I AM TROUBLE piece carries the signature of its creator."
         </p>
       </section>
 

@@ -36,6 +36,7 @@ const menuItemSchema = new mongoose.Schema({
   images: [{
     imageUrl: String,
     imageTitle: String,
+    link: String,
     order: {
       type: Number,
       default: 0

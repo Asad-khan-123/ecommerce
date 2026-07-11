@@ -11,9 +11,9 @@ const ProductCard = ({ product }: ProductCardProps) => {
   const [imgError, setImgError] = useState(false);
   const navigate = useNavigate();
 
-  const primaryImage = product.images?.[0]
-  const secondaryImage = product.images?.[1]
-  const displayImage = hovered && secondaryImage? secondaryImage : primaryImage;
+  const primaryImage = product.images?.[0];
+  const secondaryImage = product.images?.[1];
+  const displayImage = hovered && secondaryImage ? secondaryImage : primaryImage;
 
   const discount =
     product.compareAtPrice && product.compareAtPrice > product.price
@@ -34,7 +34,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
       onMouseLeave={() => setHovered(false)}
     >
       {/* Image Container */}
-      <div className="relative overflow-hidden bg-[#F5F5F5] aspect-[3/4]">
+      <div className="relative overflow-hidden bg-[#F5F5F5] aspect-[9/16]">
         {displayImage && !imgError ? (
           <img
             src={displayImage}

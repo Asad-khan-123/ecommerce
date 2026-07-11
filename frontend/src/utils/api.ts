@@ -163,6 +163,15 @@ export const productApi = {
       headers: getHeaders()
     });
     return handleResponse(response);
+  },
+
+  createProductReview: async (id: string, data: { rating: number; comment: string }) => {
+    const response = await fetch(`${API_BASE_URL}/products/${id}/reviews`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(data)
+    });
+    return handleResponse(response);
   }
 };
 
@@ -215,6 +224,24 @@ export const cartApi = {
 export const orderApi = {
   createOrder: async (data: any) => {
     const response = await fetch(`${API_BASE_URL}/orders`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(data)
+    });
+    return handleResponse(response);
+  },
+
+  createRazorpayOrder: async (data: any) => {
+    const response = await fetch(`${API_BASE_URL}/orders/razorpay/create`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(data)
+    });
+    return handleResponse(response);
+  },
+
+  verifyRazorpayPayment: async (data: any) => {
+    const response = await fetch(`${API_BASE_URL}/orders/razorpay/verify`, {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify(data)

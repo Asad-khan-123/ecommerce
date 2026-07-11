@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { bannerApi, menuApi, uploadApi, settingsApi } from '../../utils/api';
-import { Plus, Edit2, Trash2, Loader2, X, Image as ImageIcon, Eye, EyeOff } from 'lucide-react';
+import { Plus, Edit2, Trash2, Loader2, X, Image as ImageIcon, Eye, EyeOff, Video, Film, Upload } from 'lucide-react';
 
 interface BannerData {
   _id: string;
@@ -65,6 +65,15 @@ export const BannerManager: React.FC = () => {
   const [defaultShipping, setDefaultShipping] = useState('');
   const [savingSettings, setSavingSettings] = useState(false);
 
+  // Brand Media Videos state (dynamic array of videos)
+  interface BrandVideoItem {
+    id: string;
+    title: string;
+    videoUrl: string;
+  }
+  const [brandVideos, setBrandVideos] = useState<BrandVideoItem[]>([]);
+  const [uploadingVideoId, setUploadingVideoId] = useState<string | null>(null);
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -107,6 +116,20 @@ export const BannerManager: React.FC = () => {
         setDefaultSizeModel(settingsRes.data.sizeModel || '');
         setDefaultFit(settingsRes.data.fitConstruction || '');
         setDefaultShipping(settingsRes.data.shippingReturns || '');
+        if (settingsRes.data.brandVideos) {
+          try {
+            const parsed = JSON.parse(settingsRes.data.brandVideos);
+            setBrandVideos(Array.isArray(parsed) ? parsed : []);
+          } catch (e) {
+            setBrandVideos([]);
+          }
+        } else {
+          // Migration check for previous fixed keys if any
+          const legacy: BrandVideoItem[] = [];
+          if (settingsRes.data.brandPhotoshootVideo) legacy.push({ id: '1', title: 'Brand Photoshoot', videoUrl: settingsRes.data.brandPhotoshootVideo });
+          if (settingsRes.data.promotionalReelVideo) legacy.push({ id: '2', title: 'Promotional Reel', videoUrl: settingsRes.data.promotionalReelVideo });
+          setBrandVideos(legacy);
+        }
       }
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -123,19 +146,53 @@ export const BannerManager: React.FC = () => {
         fabricMaterials: defaultFabric,
         sizeModel: defaultSizeModel,
         fitConstruction: defaultFit,
-        shippingReturns: defaultShipping
+        shippingReturns: defaultShipping,
+        brandVideos: JSON.stringify(brandVideos)
       };
       const res = await settingsApi.saveSettings(payload);
       if (res.success) {
-        showToast('Global Product Accordion Defaults saved successfully!');
+        showToast('Settings & Brand Videos saved successfully!');
       } else {
-        showToast(res.message || 'Failed to save defaults', 'error');
+        showToast(res.message || 'Failed to save settings', 'error');
       }
     } catch (err) {
       console.error('Save settings error:', err);
-      showToast('Error saving global defaults', 'error');
+      showToast('Error saving settings', 'error');
     } finally {
       setSavingSettings(false);
+    }
+  };
+
+  const handleAddVideoSlot = () => {
+    setBrandVideos(prev => [...prev, { id: Date.now().toString(), title: '', videoUrl: '' }]);
+  };
+
+  const handleRemoveVideoSlot = (id: string) => {
+    setBrandVideos(prev => prev.filter(item => item.id !== id));
+  };
+
+  const handleVideoItemChange = (id: string, field: 'title' | 'videoUrl', value: string) => {
+    setBrandVideos(prev => prev.map(item => item.id === id ? { ...item, [field]: value } : item));
+  };
+
+  const handleVideoFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, id: string) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingVideoId(id);
+    try {
+      const res = await uploadApi.uploadImage(file);
+      if (res.success && res.imageUrl) {
+        handleVideoItemChange(id, 'videoUrl', res.imageUrl);
+        showToast('Video uploaded successfully!');
+      } else {
+        showToast(res.message || 'Failed to upload video', 'error');
+      }
+    } catch (err) {
+      console.error('Video upload error:', err);
+      showToast('Error uploading video file', 'error');
+    } finally {
+      setUploadingVideoId(null);
     }
   };
 
@@ -489,6 +546,114 @@ export const BannerManager: React.FC = () => {
               <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin mr-2" />
             ) : null}
             Save Highlights Configuration
+          </button>
+        </div>
+      </div>
+
+      {/* Homepage Brand Media Videos Section */}
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mt-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <Video size={20} className="text-[#212121]" />
+              <h2 className="text-lg font-semibold text-[#212121]">Homepage Brand Media Videos</h2>
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              Add any number of videos to display on the homepage. Upload video files directly or paste video links.
+            </p>
+          </div>
+          <button
+            onClick={handleAddVideoSlot}
+            className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-[#212121] hover:bg-black text-white text-xs font-medium rounded-lg transition-colors shrink-0"
+          >
+            <Plus size={14} />
+            Add Video Slot
+          </button>
+        </div>
+
+        {brandVideos.length === 0 ? (
+          <div className="my-8 py-8 text-center border-2 border-dashed border-gray-200 rounded-xl">
+            <Film size={32} className="mx-auto text-gray-300 mb-2" />
+            <p className="text-xs font-medium text-gray-500">No Brand Videos Added Yet</p>
+            <p className="text-[11px] text-gray-400 mt-1">Click "Add Video Slot" above to upload or link your first video.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 font-['Poppins']">
+            {brandVideos.map((vid, idx) => (
+              <div key={vid.id || idx} className="p-4 border border-gray-200 rounded-xl space-y-3 bg-neutral-50/50 relative group">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-gray-700">Video #{idx + 1}</span>
+                  <button
+                    onClick={() => handleRemoveVideoSlot(vid.id)}
+                    className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                    title="Remove Video"
+                  >
+                    <Trash2 size={15} />
+                  </button>
+                </div>
+
+                {/* Video Title (Optional) */}
+                <div>
+                  <label className="block text-[11px] text-gray-500 mb-1">Title (Optional)</label>
+                  <input
+                    type="text"
+                    value={vid.title}
+                    onChange={(e) => handleVideoItemChange(vid.id, 'title', e.target.value)}
+                    placeholder="e.g. Summer Campaign '26"
+                    className="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-[#212121]"
+                  />
+                </div>
+
+                {/* Video URL & Upload */}
+                <div>
+                  <label className="block text-[11px] text-gray-500 mb-1">Video File / Link</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={vid.videoUrl}
+                      onChange={(e) => handleVideoItemChange(vid.id, 'videoUrl', e.target.value)}
+                      placeholder="Video Cloudinary URL or link..."
+                      className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-[#212121]"
+                    />
+                    <label className="px-3 py-2 bg-white border border-gray-200 hover:bg-neutral-100 text-gray-700 text-xs font-medium rounded-lg cursor-pointer flex items-center gap-1.5 transition-colors shrink-0">
+                      {uploadingVideoId === vid.id ? (
+                        <Loader2 size={14} className="animate-spin" />
+                      ) : (
+                        <Upload size={14} />
+                      )}
+                      Upload
+                      <input
+                        type="file"
+                        accept="video/*"
+                        onChange={(e) => handleVideoFileUpload(e, vid.id)}
+                        disabled={uploadingVideoId === vid.id}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+                </div>
+
+                {/* Preview */}
+                {vid.videoUrl && (
+                  <div className="mt-2 aspect-video bg-black rounded-lg overflow-hidden relative max-h-[160px]">
+                    <video src={vid.videoUrl} controls className="w-full h-full object-contain" />
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="flex justify-end mt-6 pt-4 border-t border-gray-100">
+          <button
+            onClick={handleSaveSettings}
+            disabled={savingSettings}
+            className="flex items-center justify-center px-6 py-2.5 bg-[#212121] hover:bg-black text-white text-xs font-semibold uppercase tracking-wider rounded-lg disabled:opacity-50 transition-colors"
+          >
+            {savingSettings ? (
+              <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin mr-2" />
+            ) : null}
+            Save Brand Videos
           </button>
         </div>
       </div>

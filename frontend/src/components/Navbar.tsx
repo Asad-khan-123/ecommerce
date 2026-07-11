@@ -7,7 +7,7 @@ import { User, Search, ShoppingBag, Menu, X, LogOut } from 'lucide-react';
 import { CartDrawer } from './CartDrawer';
 import type { Product } from '../context/ProductContext';
 import ProductCard from './ProductCard';
-import logoImg from '../assets/logo.jpeg';
+import logoPng from '../assets/logo.png';
 
 interface MenuItemData {
   _id: string;
@@ -31,16 +31,84 @@ interface ColumnItem {
 interface Image {
   imageUrl: string;
   imageTitle: string;
+  link?: string;
 }
+
+const DEFAULT_MENU_ITEMS: MenuItemData[] = [
+  {
+    _id: 'default-shop',
+    title: 'Shop',
+    slug: 'shop',
+    columns: [
+      {
+        _id: 'col-1',
+        heading: 'View All',
+        items: [
+          { label: 'All Products', link: '/shop' },
+          { label: 'New Arrivals', link: '/shop?filter=new' }
+        ]
+      },
+      {
+        _id: 'col-2',
+        heading: 'Categories',
+        items: [
+          { label: 'Blouses & Tops', link: '/category/blouses-tops' },
+          { label: 'Dresses', link: '/category/dresses' },
+          { label: 'Bottoms', link: '/category/bottoms' }
+        ]
+      }
+    ],
+    images: []
+  },
+  {
+    _id: 'default-collections',
+    title: 'Collections',
+    slug: 'collections',
+    columns: [
+      {
+        _id: 'col-3',
+        heading: 'Recent',
+        items: [
+          { label: 'Spring 2024', link: '/collection/spring-2024' }
+        ]
+      },
+      {
+        _id: 'col-4',
+        heading: 'Curated',
+        items: [
+          { label: 'Flora', link: '/collection/flora' },
+          { label: 'Urban', link: '/collection/urban' }
+        ]
+      }
+    ],
+    images: []
+  },
+  {
+    _id: 'default-tribe',
+    title: 'Tribe-88',
+    slug: 'tribe-88',
+    columns: [
+      {
+        _id: 'col-5',
+        heading: 'Community',
+        items: [
+          { label: 'Our Story', link: '/tribe' },
+          { label: 'Members', link: '/tribe/members' },
+          { label: 'Events', link: '/tribe/events' }
+        ]
+      }
+    ],
+    images: []
+  }
+];
 
 const Navbar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { cartCount, setCartOpen } = useCart();
-  const [menuItems, setMenuItems] = useState<MenuItemData[]>([]);
+  const [menuItems, setMenuItems] = useState<MenuItemData[]>(DEFAULT_MENU_ITEMS);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -113,23 +181,13 @@ const Navbar = () => {
         }
       } catch (error) {
         console.error('Error fetching menu items:', error);
-      } finally {
-        setLoading(false);
       }
     };
 
     fetchMenuItems();
   }, []);
 
-  if (loading) {
-    return (
-      <header className="fixed top-0 left-0 w-full z-40 h-[60px] bg-white font-['Poppins'] border-b border-[#E8E8E8]">
-        <div className="mx-auto flex h-full max-w-[1440px] items-center px-8">
-          <span className="text-[12px] text-[#212121]">Loading...</span>
-        </div>
-      </header>
-    );
-  }
+  // Removed blocking loading state for seamless menu rendering
 
   const isHome = location.pathname === '/';
   const isTransparent = isHome && !isScrolled && !activeMenu;
@@ -244,25 +302,40 @@ const Navbar = () => {
                           {/* Column 3 & 4: Images - FULL HEIGHT + NO GAP */}
                           {menuItem.images && menuItem.images.length > 0 && (
                             <>
-                              {menuItem.images.slice(0, 2).map((image, idx) => (
-                                <div key={idx} className="relative h-full overflow-hidden bg-gray-100">
-                                  {/* h-full = puri height le lega */}
-                                  <img
-                                    src={image.imageUrl}
-                                    alt={image.imageTitle || 'Menu Image'}
-                                    className="h-full w-full object-cover"
-                                    loading="lazy"
-                                    onError={(e) => {
-                                      console.error('Image failed to load:', image.imageUrl);
-                                      (e.target as HTMLImageElement).style.display = 'none';
-                                    }}
-                                  />
-                                  <div className="absolute inset-0 bg-black/10 transition-opacity hover:bg-black/20" />
-                                  <span className="absolute left-6 top-6 text-[14px] font-medium text-white drop-shadow-lg">
-                                    {image.imageTitle || 'Menu Image'}
-                                  </span>
-                                </div>
-                              ))}
+                              {menuItem.images.slice(0, 2).map((image, idx) => {
+                                const ImageContent = (
+                                  <div className="relative h-full overflow-hidden bg-gray-100">
+                                    <img
+                                      src={image.imageUrl}
+                                      alt={image.imageTitle || 'Menu Image'}
+                                      className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+                                      loading="lazy"
+                                      onError={(e) => {
+                                        console.error('Image failed to load:', image.imageUrl);
+                                        (e.target as HTMLImageElement).style.display = 'none';
+                                      }}
+                                    />
+                                    <div className="absolute inset-0 bg-black/10 transition-opacity hover:bg-black/20" />
+                                    <span className="absolute left-6 top-6 text-[14px] font-medium text-white drop-shadow-lg">
+                                      {image.imageTitle || 'Menu Image'}
+                                    </span>
+                                  </div>
+                                );
+
+                                if (image.link) {
+                                  return (
+                                    <Link key={idx} to={image.link} className="relative h-full overflow-hidden bg-gray-100 block">
+                                      {ImageContent}
+                                    </Link>
+                                  );
+                                }
+
+                                return (
+                                  <div key={idx} className="relative h-full overflow-hidden bg-gray-100">
+                                    {ImageContent}
+                                  </div>
+                                );
+                              })}
                             </>
                           )}
                         </div>
@@ -290,10 +363,10 @@ const Navbar = () => {
           {/* Center: Logo */}
           <div className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center h-full">
             <Link to="/" className="flex items-center justify-center">
-              <img
-                src={logoImg}
-                alt="I AM TROUBLE BY KC"
-                className="h-11 md:h-14 w-auto object-contain max-h-[54px] transition-transform duration-300 hover:scale-105"
+              <img 
+                src={logoPng} 
+                alt="I AM TROUBLE BY KC" 
+                className="h-14 md:h-20 w-auto max-h-[72px] object-contain transition-all duration-300 hover:scale-105"
               />
             </Link>
           </div>

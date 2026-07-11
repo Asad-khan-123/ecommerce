@@ -11,7 +11,7 @@ const companyLinks: FooterLink[] = [
   { label: 'About Us', href: '/about' },
   { label: 'Our Story', href: '/about' },
   { label: 'Contact Us', href: '/contact' },
-  { label: 'Subscribe', href: '/subscribe' },
+  // { label: 'Subscribe', href: '/subscribe' },
 ];
 
 const customerCareLinks: FooterLink[] = [
@@ -21,7 +21,7 @@ const customerCareLinks: FooterLink[] = [
   { label: 'Payments', href: '/payments' },
   { label: 'Privacy Policy', href: '/policies/privacy-policy' },
   { label: 'Terms of Service', href: '/policies/terms-of-service' },
-  { label: 'Inquiries', href: '/inquiries' },
+  // { label: 'Inquiries', href: '/inquiries' },
 ];
 
 const contactLinks: FooterLink[] = [
@@ -38,19 +38,27 @@ const Footer = () => {
       role="contentinfo"
     >
       <div className="mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-y-10 gap-x-8 md:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr]">
+        <div className="grid grid-cols-1 gap-y-10 gap-x-8 md:grid-cols-2 lg:grid-cols-4">
           
-          {/* About Us Column */}
-          <div className="md:col-span-2 lg:col-span-1">
-            <h3 className="mb-5 text-[14.4px] font-medium text-[#212121]">About Us</h3>
-            <p className="my-[7.2px] text-[14.4px] leading-relaxed text-[#212121]">
-              I AM TROUBLE BY KC is a Delhi-based RTW and Made-To-Measure fashion label founded by
-              Kunal Chatterjee in 2015. Our collections are notoriously colourful, bold, and exude an
-              element of quirk — drawn from high street referencing with a directional vision, not trends.
-            </p>
+          {/* Location Map Column */}
+          <div>
+            <h3 className="mb-4 text-[14.4px] font-medium text-[#212121]">Our Location</h3>
+            <div className="w-full max-w-[260px] h-36 rounded-lg overflow-hidden border border-gray-300 shadow-sm mb-4">
+              <iframe
+                title="Store Location Map"
+                src="https://maps.google.com/maps?q=B+115+B,+Opposite+South+Park+Apartments,+Kalkaji,+New+Delhi+110019&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              />
+            </div>
 
-            <h4 className="mb-2.5 mt-5 text-[14.4px] font-medium text-[#212121]">Main Office</h4>
+            <h4 className="mb-1.5 text-[14.4px] font-medium text-[#212121]">Main Office</h4>
             <address className="not-italic text-[14.4px] leading-relaxed text-[#212121]">
+              <strong>Evolve Clothing & Textiles</strong><br />
               B 115 B, Opposite South Park Apartments,<br />
               Kalkaji, New Delhi — 110019
             </address>

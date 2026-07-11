@@ -23,6 +23,16 @@ export interface Product {
   sizeModel?: string;
   fitConstruction?: string;
   shippingReturns?: string;
+  reviews?: Array<{
+    _id: string;
+    user: string;
+    name: string;
+    rating: number;
+    comment: string;
+    createdAt: string;
+  }>;
+  rating?: number;
+  numReviews?: number;
   createdAt: string;
   updatedAt: string;
 }
