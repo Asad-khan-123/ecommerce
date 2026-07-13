@@ -108,12 +108,12 @@ const Home = () => {
           {activeBanner.link ? (
             <div className="relative group w-full">
               <Link to={`/${activeBanner.link}`} className="block w-full">
-                <picture>
+                <picture className="block w-full aspect-[4/5] md:aspect-[21/9] overflow-hidden bg-[#F5F5F5]">
                   <source media="(max-width: 768px)" srcSet={activeBanner.mobileImage} />
                   <img 
                     src={activeBanner.desktopImage} 
                     alt="Hero Banner" 
-                    className="w-full h-auto object-cover"
+                    className="w-full h-full object-cover"
                   />
                 </picture>
               </Link>
@@ -128,12 +128,12 @@ const Home = () => {
               </div>
             </div>
           ) : (
-            <picture>
+            <picture className="block w-full aspect-[4/5] md:aspect-[21/9] overflow-hidden bg-[#F5F5F5]">
               <source media="(max-width: 768px)" srcSet={activeBanner.mobileImage} />
               <img 
                 src={activeBanner.desktopImage} 
                 alt="Hero Banner" 
-                className="w-full h-auto object-cover"
+                className="w-full h-full object-cover"
               />
             </picture>
           )}

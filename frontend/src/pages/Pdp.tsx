@@ -632,9 +632,9 @@ const Pdp = () => {
                     {/* {product.inStock !== undefined && (
                       <li><span className="font-medium text-[#212121]">Availability:</span> {product.inStock ? 'In Stock' : 'Out of Stock'}</li>
                     )} */}
-                    {product.inventory > 0 && (
+                    {/* {product.inventory > 0 && (
                       <li><span className="font-medium text-[#212121]">Units Left:</span> {product.inventory}</li>
-                    )}
+                    )} */}
                   </ul>
                 )}
               </div>

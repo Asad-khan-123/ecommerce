@@ -224,6 +224,18 @@ const Checkout: React.FC = () => {
     }
   };
 
+  if (user?.role === 'admin') {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center font-['Poppins'] px-6 text-center">
+        <p className="text-[13px] uppercase tracking-[0.2em] text-red-600 font-medium mb-4">Administrators cannot place orders</p>
+        <p className="text-[11px] text-[#666] mb-6">Please log in with a customer account to purchase products.</p>
+        <button onClick={() => navigate('/')} className="border border-[#212121] px-8 py-3 text-[11px] tracking-[0.2em] uppercase text-[#212121] hover:bg-[#212121] hover:text-white transition-colors">
+          Return to Home
+        </button>
+      </div>
+    );
+  }
+
   if (loadingProduct || submitting) {
     return (
       <div className="min-h-screen flex items-center justify-center font-['Poppins']">

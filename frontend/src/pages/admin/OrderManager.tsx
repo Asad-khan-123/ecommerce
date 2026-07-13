@@ -235,6 +235,22 @@ export const OrderManager: React.FC = () => {
     }
   };
 
+  const handleDeleteOrder = async (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this order? This action cannot be undone.')) {
+      return;
+    }
+
+    const res = await orderApi.deleteOrderAdmin(id);
+    if (res.success) {
+      setOrders(prev => prev.filter(o => o._id !== id));
+      if (selectedOrder?._id === id) {
+        setSelectedOrder(null);
+      }
+    } else {
+      alert(res.message || 'Failed to delete order');
+    }
+  };
+
   const filteredOrders = filter === 'All' ? orders : orders.filter(o => o.orderStatus === filter);
 
   // Stats
@@ -336,12 +352,20 @@ export const OrderManager: React.FC = () => {
                       <Badge label={order.orderStatus} colorClass={STATUS_COLORS[order.orderStatus] || 'bg-gray-100 text-gray-600'} />
                     </td>
                     <td className="px-4 py-3">
-                      <button
-                        onClick={() => setSelectedOrder(order)}
-                        className="text-[11px] uppercase tracking-wider text-[#2D81F7] hover:underline font-medium"
-                      >
-                        Manage
-                      </button>
+                      <div className="flex items-center gap-x-3">
+                        <button
+                          onClick={() => setSelectedOrder(order)}
+                          className="text-[11px] uppercase tracking-wider text-[#2D81F7] hover:underline font-medium"
+                        >
+                          Manage
+                        </button>
+                        <button
+                          onClick={() => handleDeleteOrder(order._id)}
+                          className="text-[11px] uppercase tracking-wider text-red-600 hover:underline font-medium"
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}

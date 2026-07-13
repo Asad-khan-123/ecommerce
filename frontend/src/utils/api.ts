@@ -286,6 +286,14 @@ export const orderApi = {
       body: JSON.stringify({ paymentStatus })
     });
     return handleResponse(response);
+  },
+
+  deleteOrderAdmin: async (id: string) => {
+    const response = await fetch(`${API_BASE_URL}/orders/admin/${id}`, {
+      method: 'DELETE',
+      headers: getHeaders()
+    });
+    return handleResponse(response);
   }
 };
 

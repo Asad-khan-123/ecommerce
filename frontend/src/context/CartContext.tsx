@@ -30,16 +30,18 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 // Helper function to map populated backend cart structure to frontend flat CartItem structure
 const mapBackendCartToFrontend = (backendCart: any): CartItem[] => {
   if (!backendCart || !backendCart.items) return [];
-  return backendCart.items.map((item: any) => ({
-    _id: item.product?._id || '',
-    title: item.product?.title || 'Unknown Product',
-    slug: item.product?.slug || '',
-    price: item.product?.price || 0,
-    image: item.product?.images?.[0] || '',
-    size: item.size,
-    color: item.color,
-    quantity: item.quantity
-  }));
+  return backendCart.items
+    .filter((item: any) => item.product) // Filter out deleted products
+    .map((item: any) => ({
+      _id: item.product?._id || '',
+      title: item.product?.title || 'Unknown Product',
+      slug: item.product?.slug || '',
+      price: item.product?.price || 0,
+      image: item.product?.images?.[0] || '',
+      size: item.size,
+      color: item.color,
+      quantity: item.quantity
+    }));
 };
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -52,7 +54,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const savedCart = localStorage.getItem('cartItems');
       if (savedCart) {
-        setCartItems(JSON.parse(savedCart));
+        const parsed = JSON.parse(savedCart);
+        if (Array.isArray(parsed)) {
+          // Filter out any invalid, empty, or unknown cart items
+          setCartItems(parsed.filter((item: CartItem) => item._id && item.title !== 'Unknown Product'));
+        }
       }
     } catch (error) {
       console.error('Failed to load cart items from localStorage:', error);

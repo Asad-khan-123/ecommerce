@@ -34,7 +34,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
       onMouseLeave={() => setHovered(false)}
     >
       {/* Image Container */}
-      <div className="relative overflow-hidden bg-[#F5F5F5] aspect-[9/16]">
+      <div className="relative overflow-hidden bg-[#F5F5F5] aspect-[9/17]">
         {displayImage && !imgError ? (
           <img
             src={displayImage}

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import type { Product } from '../context/ProductContext';
+import { useProducts, type Product } from '../context/ProductContext';
 import ProductCard from './ProductCard';
 
 interface RecentlyViewedProps {
@@ -8,23 +8,55 @@ interface RecentlyViewedProps {
 
 export const RecentlyViewed: React.FC<RecentlyViewedProps> = ({ currentProductId }) => {
   const [items, setItems] = useState<Product[]>([]);
+  const { fetchProductBySlug } = useProducts();
 
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem('recentlyViewed');
-      if (saved) {
-        const list: Product[] = JSON.parse(saved);
-        // Exclude the current product being viewed if provided
-        const filtered = currentProductId
-          ? list.filter((p) => p._id !== currentProductId)
-          : list;
-        // Limit to 4 recently viewed products
-        setItems(filtered.slice(0, 4));
+    const loadAndValidate = async () => {
+      try {
+        const saved = localStorage.getItem('recentlyViewed');
+        if (saved) {
+          const list: Product[] = JSON.parse(saved);
+          // Exclude the current product being viewed if provided
+          const filtered = currentProductId
+            ? list.filter((p) => p._id !== currentProductId)
+            : list;
+          
+          const recentItems = filtered.slice(0, 4);
+          
+          // Validate that each product still exists in the database
+          const validatedItems: Product[] = [];
+          
+          const validationPromises = recentItems.map(async (item) => {
+            const exists = await fetchProductBySlug(item.slug);
+            if (exists) {
+              validatedItems.push(exists);
+            }
+          });
+          
+          await Promise.all(validationPromises);
+          
+          // Keep the original order of items
+          const orderedValidatedItems = recentItems
+            .map(item => validatedItems.find(vi => vi._id === item._id))
+            .filter(Boolean) as Product[];
+
+          setItems(orderedValidatedItems);
+
+          // Update localStorage if some items were deleted
+          if (orderedValidatedItems.length !== recentItems.length) {
+            const updatedFullList = list.filter(item => 
+              orderedValidatedItems.some(vi => vi._id === item._id) || (currentProductId && item._id === currentProductId)
+            );
+            localStorage.setItem('recentlyViewed', JSON.stringify(updatedFullList));
+          }
+        }
+      } catch (error) {
+        console.error('Failed to read/validate recently viewed from localStorage:', error);
       }
-    } catch (error) {
-      console.error('Failed to read recently viewed from localStorage:', error);
-    }
-  }, [currentProductId]);
+    };
+
+    loadAndValidate();
+  }, [currentProductId, fetchProductBySlug]);
 
   if (items.length === 0) return null;
 

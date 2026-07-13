@@ -61,6 +61,21 @@ const DEFAULT_MENU_ITEMS: MenuItemData[] = [
     images: []
   },
   {
+    _id: 'default-collection-new',
+    title: 'Collection',
+    slug: 'products',
+    columns: [
+      {
+        _id: 'col-underground',
+        heading: 'Silence',
+        items: [
+          { label: 'Underground Silence', link: '/products' }
+        ]
+      }
+    ],
+    images: []
+  },
+  {
     _id: 'default-collections',
     title: 'Collections',
     slug: 'collections',
@@ -177,7 +192,26 @@ const Navbar = () => {
           response.data?.forEach((item: MenuItemData) => {
             console.log(`Menu "${item.title}" images:`, item.images);
           });
-          setMenuItems(response.data || []);
+          const fetchedItems = response.data || [];
+          const hasCollection = fetchedItems.some((item: any) => item.slug === 'products');
+          if (!hasCollection) {
+            fetchedItems.push({
+              _id: 'default-collection-new',
+              title: 'Collection',
+              slug: 'products',
+              columns: [
+                {
+                  _id: 'col-underground',
+                  heading: 'Silence',
+                  items: [
+                    { label: 'Underground Silence', link: '/products' }
+                  ]
+                }
+              ],
+              images: []
+            });
+          }
+          setMenuItems(fetchedItems);
         }
       } catch (error) {
         console.error('Error fetching menu items:', error);
@@ -248,7 +282,7 @@ const Navbar = () => {
                                   }
                                   // If link is just one segment like "/flora", prepend menu slug
                                   const linkParts = fullLink.split('/').filter(Boolean);
-                                  if (linkParts.length === 1) {
+                                   if (linkParts.length === 1 && !fullLink.startsWith('/products')) {
                                     fullLink = `/${menuItem.slug}/${linkParts[0]}`;
                                   }
                                   return (
@@ -281,7 +315,7 @@ const Navbar = () => {
                                   }
                                   // If link is just one segment like "/flora", prepend menu slug
                                   const linkParts = fullLink.split('/').filter(Boolean);
-                                  if (linkParts.length === 1) {
+                                   if (linkParts.length === 1 && !fullLink.startsWith('/products')) {
                                     fullLink = `/${menuItem.slug}/${linkParts[0]}`;
                                   }
                                   return (
@@ -470,7 +504,7 @@ const Navbar = () => {
                               }
                               // If link is just one segment like "/flora", prepend menu slug
                               const linkParts = fullLink.split('/').filter(Boolean);
-                              if (linkParts.length === 1) {
+                              if (linkParts.length === 1 && !fullLink.startsWith('/products')) {
                                 fullLink = `/${menuItem.slug}/${linkParts[0]}`;
                               }
                               return (
