@@ -20,7 +20,7 @@ const createTransporter = () => {
  * Sends a professional HTML order confirmation email to the customer.
  * Suppresses any internal errors to ensure the order creation process is not interrupted.
  */
-export const sendOrderConfirmationEmail = async (order, customerEmail) => {
+export const sendOrderConfirmationEmail = async (order, customerEmail, adminEmails = []) => {
   if (!ENV.EMAIL_USER || !ENV.EMAIL_PASS) {
     console.warn('WARNING: SMTP credentials not set (EMAIL_USER/EMAIL_PASS). Order confirmation email was skipped.');
     return;
@@ -127,6 +127,12 @@ export const sendOrderConfirmationEmail = async (order, customerEmail) => {
       subject: `Order Confirmation — #${order._id}`,
       html: emailHtml,
     };
+
+    if (adminEmails && adminEmails.length > 0) {
+      mailOptions.bcc = adminEmails;
+    } else {
+      mailOptions.bcc = ENV.EMAIL_USER;
+    }
 
     const info = await transporter.sendMail(mailOptions);
     console.log('Order confirmation email sent successfully. Msg ID:', info.messageId);

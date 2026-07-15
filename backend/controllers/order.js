@@ -1,6 +1,7 @@
 import Order from '../models/order.js';
 import Cart from '../models/cart.js';
 import Product from '../models/product.js';
+import User from '../models/user.js';
 import Razorpay from 'razorpay';
 import crypto from 'crypto';
 import ENV from '../utils/env.js';
@@ -43,9 +44,18 @@ export const createOrder = async (req, res) => {
       .populate('user', 'name email')
       .populate('items.product', 'title slug images');
 
+    // Fetch all admin emails dynamically from database
+    let adminEmails = [];
+    try {
+      const admins = await User.find({ role: 'admin' }).select('email');
+      adminEmails = admins.map(u => u.email).filter(Boolean);
+    } catch (dbErr) {
+      console.error('Error fetching admin emails for order notification:', dbErr);
+    }
+
     // Send confirmation email asynchronously (errors will be caught internally)
     if (populated && populated.user && populated.user.email) {
-      sendOrderConfirmationEmail(populated, populated.user.email);
+      sendOrderConfirmationEmail(populated, populated.user.email, adminEmails);
     }
 
     return res.status(201).json({ success: true, data: populated });
@@ -327,9 +337,18 @@ export const verifyRazorpayPayment = async (req, res) => {
       .populate('user', 'name email')
       .populate('items.product', 'title slug images');
 
+    // Fetch all admin emails dynamically from database
+    let adminEmails = [];
+    try {
+      const admins = await User.find({ role: 'admin' }).select('email');
+      adminEmails = admins.map(u => u.email).filter(Boolean);
+    } catch (dbErr) {
+      console.error('Error fetching admin emails for order notification:', dbErr);
+    }
+
     // Send confirmation email asynchronously (errors will be caught internally)
     if (populated && populated.user && populated.user.email) {
-      sendOrderConfirmationEmail(populated, populated.user.email);
+      sendOrderConfirmationEmail(populated, populated.user.email, adminEmails);
     }
 
     return res.status(201).json({ success: true, data: populated });
