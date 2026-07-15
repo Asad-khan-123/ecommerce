@@ -27,7 +27,11 @@ const ENV = {
   RAZORPAY_KEY_SECRET: process.env.RAZORPAY_KEY_SECRET,
   ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS 
     ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim()).filter(Boolean) 
-    : []
+    : [],
+  SMTP_HOST: process.env.SMTP_HOST || 'smtp.hostinger.com',
+  SMTP_PORT: Number(process.env.SMTP_PORT) || 465,
+  EMAIL_USER: process.env.EMAIL_USER,
+  EMAIL_PASS: process.env.EMAIL_PASS
 };
 
 export default ENV;

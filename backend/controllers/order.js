@@ -5,6 +5,7 @@ import Razorpay from 'razorpay';
 import crypto from 'crypto';
 import ENV from '../utils/env.js';
 import Setting from '../models/settings.js';
+import { sendOrderConfirmationEmail } from '../utils/email.js';
 
 // ── Create a new order (user) ────────────────────────────────────────────────
 export const createOrder = async (req, res) => {
@@ -41,6 +42,11 @@ export const createOrder = async (req, res) => {
     const populated = await Order.findById(order._id)
       .populate('user', 'name email')
       .populate('items.product', 'title slug images');
+
+    // Send confirmation email asynchronously (errors will be caught internally)
+    if (populated && populated.user && populated.user.email) {
+      sendOrderConfirmationEmail(populated, populated.user.email);
+    }
 
     return res.status(201).json({ success: true, data: populated });
   } catch (error) {
@@ -320,6 +326,11 @@ export const verifyRazorpayPayment = async (req, res) => {
     const populated = await Order.findById(order._id)
       .populate('user', 'name email')
       .populate('items.product', 'title slug images');
+
+    // Send confirmation email asynchronously (errors will be caught internally)
+    if (populated && populated.user && populated.user.email) {
+      sendOrderConfirmationEmail(populated, populated.user.email);
+    }
 
     return res.status(201).json({ success: true, data: populated });
   } catch (error) {

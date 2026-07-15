@@ -6,7 +6,9 @@ const INITIAL_DEFAULTS = {
   fitConstruction: "Relaxed fit with structured shoulders for a clean silhouette. Designed to layer or wear standalone.",
   shippingReturns: "Free shipping on orders over ₹2,000. Rs. 150 shipping fee otherwise. Returns accepted within 14 days of delivery in original condition.",
   shippingFee: "150",
-  shippingThreshold: "2000"
+  shippingThreshold: "2000",
+  orderSuccessMessage: "Thank you for shopping with us! Your order has been successfully placed. We've sent a confirmation email with all the details.",
+  orderDeliveredMessage: "Your order has been delivered successfully. We hope you love your new purchase!"
 };
 
 export const getSettings = async (req, res) => {

@@ -65,6 +65,8 @@ export const BannerManager: React.FC = () => {
   const [defaultShipping, setDefaultShipping] = useState('');
   const [shippingFee, setShippingFee] = useState('150');
   const [shippingThreshold, setShippingThreshold] = useState('2000');
+  const [orderSuccessMessage, setOrderSuccessMessage] = useState('');
+  const [orderDeliveredMessage, setOrderDeliveredMessage] = useState('');
   const [savingSettings, setSavingSettings] = useState(false);
 
   // Brand Media Videos state (dynamic array of videos)
@@ -120,6 +122,8 @@ export const BannerManager: React.FC = () => {
         setDefaultShipping(settingsRes.data.shippingReturns || '');
         setShippingFee(settingsRes.data.shippingFee || '150');
         setShippingThreshold(settingsRes.data.shippingThreshold || '2000');
+        setOrderSuccessMessage(settingsRes.data.orderSuccessMessage || '');
+        setOrderDeliveredMessage(settingsRes.data.orderDeliveredMessage || '');
         if (settingsRes.data.brandVideos) {
           try {
             const parsed = JSON.parse(settingsRes.data.brandVideos);
@@ -153,7 +157,9 @@ export const BannerManager: React.FC = () => {
         shippingReturns: defaultShipping,
         brandVideos: JSON.stringify(brandVideos),
         shippingFee,
-        shippingThreshold
+        shippingThreshold,
+        orderSuccessMessage,
+        orderDeliveredMessage
       };
       const res = await settingsApi.saveSettings(payload);
       if (res.success) {
@@ -782,6 +788,55 @@ export const BannerManager: React.FC = () => {
               <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin mr-2" />
             ) : null}
             Save Shipping Settings
+          </button>
+        </div>
+      </div>
+
+      {/* Order Status Message Settings Section */}
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mt-6">
+        <div>
+          <h2 className="text-lg font-semibold text-[#212121]">Order Notification Message Settings</h2>
+          <p className="text-xs text-gray-500 mt-1">
+            Configure the custom messages that will be displayed on the checkout success screen and inside delivery notifications.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 gap-6 mt-6 font-['Poppins']">
+          {/* Order Success Message */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-medium text-gray-700">Order Success Screen & Confirmation Email Message</label>
+            <textarea
+              value={orderSuccessMessage}
+              onChange={(e) => setOrderSuccessMessage(e.target.value)}
+              rows={3}
+              placeholder="Thank you for shopping with us! Your order has been successfully placed..."
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-[#212121] focus:border-[#212121]"
+            />
+          </div>
+
+          {/* Order Delivered Message */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-medium text-gray-700">Order Delivered Success Notification Message</label>
+            <textarea
+              value={orderDeliveredMessage}
+              onChange={(e) => setOrderDeliveredMessage(e.target.value)}
+              rows={3}
+              placeholder="Your order has been delivered successfully. We hope you love your new purchase!..."
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-[#212121] focus:border-[#212121]"
+            />
+          </div>
+        </div>
+
+        <div className="flex justify-end mt-6 pt-4 border-t border-gray-100">
+          <button
+            onClick={handleSaveSettings}
+            disabled={savingSettings}
+            className="flex items-center justify-center px-6 py-2.5 bg-[#212121] hover:bg-black text-white text-xs font-semibold uppercase tracking-wider rounded-lg disabled:opacity-50 transition-colors"
+          >
+            {savingSettings ? (
+              <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin mr-2" />
+            ) : null}
+            Save Notification Messages
           </button>
         </div>
       </div>

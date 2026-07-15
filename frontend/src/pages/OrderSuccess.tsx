@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { orderApi } from '../utils/api';
+import { orderApi, settingsApi } from '../utils/api';
 import { CheckCircle, Package, Truck, Home, Clock } from 'lucide-react';
 
 interface OrderData {
@@ -45,12 +45,24 @@ const OrderSuccess: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [order, setOrder] = useState<OrderData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [successMsg, setSuccessMsg] = useState("Thank you for shopping with us! Your order has been successfully placed. We've sent a confirmation email with all the details.");
+  const [deliveredMsg, setDeliveredMsg] = useState("Your order has been delivered successfully. We hope you love your new purchase!");
 
   useEffect(() => {
     if (!id) return;
+    
+    // Fetch order details
     orderApi.getOrderById(id).then(res => {
       if (res.success) setOrder(res.data);
       setLoading(false);
+    });
+
+    // Fetch custom order success/delivered messages from Settings
+    settingsApi.getSettings().then(res => {
+      if (res.success && res.data) {
+        if (res.data.orderSuccessMessage) setSuccessMsg(res.data.orderSuccessMessage);
+        if (res.data.orderDeliveredMessage) setDeliveredMsg(res.data.orderDeliveredMessage);
+      }
     });
   }, [id]);
 
@@ -85,10 +97,10 @@ const OrderSuccess: React.FC = () => {
             <CheckCircle size={32} className="text-green-600" />
           </div>
           <h1 className="text-[22px] font-light tracking-tight text-[#212121] mb-2">
-            Order Confirmed
+            {order.orderStatus === 'Delivered' ? 'Order Delivered' : 'Order Confirmed'}
           </h1>
-          <p className="text-[12px] text-[#999] tracking-wide">
-            Thank you, <span className="text-[#212121] font-medium">{order.shippingAddress.fullName}</span>! Your order has been placed successfully.
+          <p className="text-[12px] text-[#999] tracking-wide max-w-md mx-auto leading-relaxed">
+            {order.orderStatus === 'Delivered' ? deliveredMsg : successMsg}
           </p>
           <p className="text-[11px] text-[#bbb] mt-1.5 tracking-widest uppercase">
             Order #{order._id.slice(-8).toUpperCase()}
