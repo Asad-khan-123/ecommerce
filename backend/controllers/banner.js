@@ -2,6 +2,7 @@ import Banner from '../models/banner.js';
 import Highlight from '../models/highlight.js';
 import Product from '../models/product.js';
 import MenuItem from '../models/menuItem.js';
+import { deleteFromCloudinary } from '../utils/cloudinary.js';
 
 export const getBanners = async (req, res) => {
   try {
@@ -37,9 +38,27 @@ export const createBanner = async (req, res) => {
 
 export const updateBanner = async (req, res) => {
   try {
+    const banner = await Banner.findById(req.params.id);
+    if (!banner) {
+      return res.status(404).json({ success: false, message: 'Banner not found' });
+    }
+
     if (req.body.isActive) {
       await Banner.updateMany({ _id: { $ne: req.params.id } }, { isActive: false });
     }
+
+    // Clean up replaced images from Cloudinary
+    const imagesToDelete = [];
+    if (req.body.desktopImage && req.body.desktopImage !== banner.desktopImage) {
+      imagesToDelete.push(banner.desktopImage);
+    }
+    if (req.body.mobileImage && req.body.mobileImage !== banner.mobileImage) {
+      imagesToDelete.push(banner.mobileImage);
+    }
+    if (imagesToDelete.length > 0) {
+      await deleteFromCloudinary(imagesToDelete);
+    }
+
     const updated = await Banner.findByIdAndUpdate(req.params.id, req.body, { new: true });
     res.status(200).json({ success: true, data: updated });
   } catch (error) {
@@ -49,6 +68,10 @@ export const updateBanner = async (req, res) => {
 
 export const deleteBanner = async (req, res) => {
   try {
+    const banner = await Banner.findById(req.params.id);
+    if (banner) {
+      await deleteFromCloudinary([banner.desktopImage, banner.mobileImage]);
+    }
     await Banner.findByIdAndDelete(req.params.id);
     res.status(200).json({ success: true, message: 'Banner deleted' });
   } catch (error) {

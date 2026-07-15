@@ -7,7 +7,8 @@ import {
   updateOrderStatus,
   updatePaymentStatus,
   createRazorpayOrder,
-  verifyRazorpayPayment
+  verifyRazorpayPayment,
+  deleteOrder
 } from '../controllers/order.js';
 import { protect, adminOnly } from '../middlewares/authmiddleware.js';
 
@@ -24,5 +25,6 @@ router.get('/:id', protect, getOrderById);
 router.get('/admin/all', protect, adminOnly, getAllOrdersAdmin);
 router.put('/admin/:id/status', protect, adminOnly, updateOrderStatus);
 router.put('/admin/:id/payment', protect, adminOnly, updatePaymentStatus);
+router.delete('/admin/:id', protect, adminOnly, deleteOrder);
 
 export default router;

@@ -1,5 +1,6 @@
 import Product from '../models/product.js';
 import Setting from '../models/settings.js';
+import { deleteFromCloudinary } from '../utils/cloudinary.js';
 
 // Helper to generate a slug from title
 const generateSlug = (title) => {
@@ -211,7 +212,16 @@ export const updateProduct = async (req, res) => {
     if (price !== undefined) product.price = price;
     if (req.body.description !== undefined) product.description = req.body.description;
     if (req.body.compareAtPrice !== undefined) product.compareAtPrice = req.body.compareAtPrice;
-    if (req.body.images !== undefined) product.images = req.body.images;
+    
+    if (req.body.images !== undefined) {
+      const oldImages = product.images || [];
+      const newImages = req.body.images || [];
+      const removedImages = oldImages.filter(img => !newImages.includes(img));
+      if (removedImages.length > 0) {
+        await deleteFromCloudinary(removedImages);
+      }
+      product.images = newImages;
+    }
     if (req.body.sizes !== undefined) product.sizes = req.body.sizes;
     if (req.body.colors !== undefined) product.colors = req.body.colors;
     if (req.body.inStock !== undefined) product.inStock = req.body.inStock;
@@ -246,10 +256,17 @@ export const deleteProduct = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const product = await Product.findByIdAndDelete(id);
+    const product = await Product.findById(id);
     if (!product) {
       return res.status(404).json({ success: false, message: 'Product not found' });
     }
+
+    // Delete associated images from Cloudinary
+    if (product.images && product.images.length > 0) {
+      await deleteFromCloudinary(product.images);
+    }
+
+    await Product.findByIdAndDelete(id);
 
     res.status(200).json({
       success: true,

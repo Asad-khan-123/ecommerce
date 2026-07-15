@@ -1,3 +1,5 @@
+import aboutUsImg from '../assets/aboutus.jpeg';
+
 const About = () => {
   return (
     <div className="min-h-screen bg-white font-['Poppins'] text-[#212121]">
@@ -12,34 +14,36 @@ const About = () => {
           </h1>
         </div>
 
-        {/* Content Split Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-16 items-center">
-          {/* Left Column: Image */}
-          <div className="md:col-span-6 overflow-hidden">
-            <img
-              src="https://images.unsplash.com/photo-1558769132-cb1aea458c5e?q=80&w=1200"
-              alt="I AM TROUBLE BY KC Atelier"
-              className="w-full h-auto object-cover aspect-[3/4] border border-[#E8E8E8] shadow-sm hover:scale-[1.02] transition-transform duration-500"
-            />
-          </div>
+       {/* Content Split Grid */}
+<div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-16 items-center">
 
-          {/* Right Column: Copy */}
-          <div className="md:col-span-6 space-y-6">
-            <h2 className="text-[11px] tracking-[0.25em] uppercase font-semibold text-[#212121]">
-              The Brand
-            </h2>
-            <p className="text-[13px] md:text-[14px] leading-relaxed text-[#666] font-light">
-              Label <strong>I AM TROUBLE BY KC</strong> is a New Delhi (India) based RTW  and Made To Measure fashion label founded by <strong>Kunal Chatterjee</strong> in the year 2015.
-            </p>
-            <p className="text-[13px] md:text-[14px] leading-relaxed text-[#666] font-light">
-              The label curates collections from expression of self-experiences in the journey of life. workmanship of this label are notoriously colourful, bold, and exude an element of quirk.
-            </p>
-            <p className="text-[13px] md:text-[14px] leading-relaxed text-[#666] font-light">
-              Our design philosophy is not trend-driven, but focused on a directional vision that draws from high street referencing.
-            </p>
-          </div>
-        </div>
+  {/* Left Column: Logo/Image - SMALL */}
+  <div className="md:col-span-4 flex justify-center">
+    <div className="w-full max-w-[320px]">
+      <img
+        src={aboutUsImg}
+        alt="I AM TROUBLE BY KC Atelier"
+        className="w-full h-auto object-contain border border-[#E8E8E8] shadow-sm hover:scale-[1.02] transition-transform duration-500 bg-white p-8"
+      />
+    </div>
+  </div>
 
+  {/* Right Column: Copy */}
+  <div className="md:col-span-8 space-y-6">
+    <h2 className="text-[12px] tracking-[0.25em] uppercase font-semibold text-[#212121]">
+      The Brand
+    </h2>
+    <p className="text-[13px] md:text-[14px] leading-relaxed text-[#666] font-light">
+      Label <strong>I AM TROUBLE BY KC</strong> is a New Delhi (India) based RTW and Made To Measure fashion label founded by <strong>Kunal Chatterjee</strong> in the year 2015.
+    </p>
+    <p className="text-[13px] md:text-[14px] leading-relaxed text-[#666] font-light">
+      The label curates collections from expression of self-experiences in the journey of life. workmanship of this label are notoriously colourful, bold, and exude an element of quirk.
+    </p>
+    <p className="text-[13px] md:text-[14px] leading-relaxed text-[#666] font-light">
+      Our design philosophy is not trend-driven, but focused on a directional vision that draws from high street referencing.
+    </p>
+  </div>
+</div>
         {/* Highlight Callout Quote Block */}
         <div className="mt-20 border-t border-b border-[#E8E8E8] py-12 md:py-16 text-center">
           <blockquote className="max-w-2xl mx-auto">

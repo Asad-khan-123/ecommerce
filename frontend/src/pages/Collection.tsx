@@ -408,18 +408,29 @@ const Collection = () => {
           </div>
         </div>
       ) : products.length === 0 ? (
-        <div className="flex-grow bg-white py-24 text-center">
-          <div className="mx-auto max-w-[1440px] px-8">
-            <div className="mb-6 text-[40px] opacity-20">◻</div>
-            <p className="text-[12px] tracking-widest uppercase text-[#999]">No Products Found</p>
-            <p className="mt-2 text-[11px] text-[#BDBDBD]">Try modifying your active filters or clear search criteria.</p>
-            {hasActiveFilters && (
-              <button 
-                onClick={handleClearAll}
-                className="mt-6 border border-[#212121] px-6 py-2 text-[10px] tracking-widest uppercase text-[#212121] hover:bg-[#212121] hover:text-white transition-colors"
-              >
-                Clear All Filters
-              </button>
+        <div className="flex-grow bg-white flex items-center justify-center py-32 text-center">
+          <div className="mx-auto max-w-[1440px] px-8 w-full">
+            {hasActiveFilters ? (
+              <>
+                <div className="mb-6 text-[40px] opacity-20">◻</div>
+                <p className="text-[12px] tracking-widest uppercase text-[#999]">No Products Found</p>
+                <p className="mt-2 text-[11px] text-[#BDBDBD]">Try modifying your active filters or clear search criteria.</p>
+                <button 
+                  onClick={handleClearAll}
+                  className="mt-6 border border-[#212121] px-6 py-2 text-[10px] tracking-widest uppercase text-[#212121] hover:bg-[#212121] hover:text-white transition-colors"
+                >
+                  Clear All Filters
+                </button>
+              </>
+            ) : (
+              <div className="space-y-4 py-12">
+                <h2 className="text-[32px] md:text-[56px] font-light tracking-[0.35em] uppercase text-[#212121] leading-none">
+                  Coming Soon
+                </h2>
+                <p className="text-[10px] md:text-[11px] tracking-[0.2em] uppercase text-[#999] font-light max-w-md mx-auto leading-relaxed">
+                  We are currently preparing this selection. Please check back later.
+                </p>
+              </div>
             )}
           </div>
         </div>
@@ -471,6 +482,27 @@ const Collection = () => {
                 </button>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Dynamic Philosophy Banner for /products route */}
+      {!loading && !error && menuSlug === 'products' && !itemSlug && (
+        <div className="w-full bg-[#111] text-white py-16 md:py-24 px-6 text-center font-['Poppins']">
+          <div className="max-w-4xl mx-auto">
+            <span className="text-[10px] md:text-[11px] tracking-[0.3em] uppercase text-[#888] font-medium mb-8 block">
+              FOUNDER'S PHILOSOPHY
+            </span>
+            <p className="text-[15px] md:text-[18px] font-light leading-relaxed text-[#eee] max-w-3xl mx-auto italic">
+              &ldquo;This collection explores a quiet yet powerful identity inspired by Tokyo’s underground spaces. Clean structures, layered silhouettes, and controlled movement define each look. It’s not about loud expression, but about presence, attitude, and subtle strength. Every garment reflects a balance between minimalism and bold construction where silence becomes the statement and design speaks for itself.&rdquo;
+            </p>
+            <div className="mt-12 pt-8 border-t border-[#2a2a2a] max-w-xs mx-auto text-center text-[#888] text-[11px] md:text-[12px] font-light space-y-1 tracking-wide leading-relaxed">
+              <p className="font-semibold text-white tracking-widest uppercase text-[10px] mb-2">Best Regards,</p>
+              <p className="text-white">Team I AM TROUBLE</p>
+              <p className="opacity-80">Evolve Clothing & Textiles</p>
+              <p className="opacity-60">B 115-B, Basement, Kalkaji</p>
+              <p className="opacity-60">Opposite South Park Apartments</p>
+            </div>
           </div>
         </div>
       )}

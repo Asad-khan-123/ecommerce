@@ -9,7 +9,7 @@ interface FooterLink {
 
 const companyLinks: FooterLink[] = [
   { label: 'About Us', href: '/about' },
-  { label: 'Our Story', href: '/about' },
+  // { label: 'Our Story', href: '/about' },
   { label: 'Contact Us', href: '/contact' },
   // { label: 'Subscribe', href: '/subscribe' },
 ];

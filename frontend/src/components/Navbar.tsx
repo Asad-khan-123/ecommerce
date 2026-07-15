@@ -188,10 +188,6 @@ const Navbar = () => {
       try {
         const response = await menuApi.getMenuItems();
         if (response.success) {
-          console.log('Menu items received:', response.data);
-          response.data?.forEach((item: MenuItemData) => {
-            console.log(`Menu "${item.title}" images:`, item.images);
-          });
           const fetchedItems = response.data || [];
           const hasCollection = fetchedItems.some((item: any) => item.slug === 'products');
           if (!hasCollection) {

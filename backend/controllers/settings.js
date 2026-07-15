@@ -4,7 +4,9 @@ const INITIAL_DEFAULTS = {
   fabricMaterials: "Crafted from premium quality materials selected for durability and comfort. Each piece undergoes rigorous quality checks before reaching you.",
   sizeModel: "Our model is 6'1\" and wearing a size M. The fit is true to size — we recommend ordering your usual size.",
   fitConstruction: "Relaxed fit with structured shoulders for a clean silhouette. Designed to layer or wear standalone.",
-  shippingReturns: "Free shipping on orders over ₹2,000. Rs. 150 shipping fee otherwise. Returns accepted within 14 days of delivery in original condition."
+  shippingReturns: "Free shipping on orders over ₹2,000. Rs. 150 shipping fee otherwise. Returns accepted within 14 days of delivery in original condition.",
+  shippingFee: "150",
+  shippingThreshold: "2000"
 };
 
 export const getSettings = async (req, res) => {

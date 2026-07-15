@@ -66,6 +66,71 @@ router.get('/:menuSlug', async (req, res) => {
     const limit = parseInt(req.query.limit) || 12;
     const skip = (page - 1) * limit;
 
+    // Special case for 'products' (all products)
+    if (menuSlug === 'products') {
+      const query = { isActive: true };
+
+      // Size Filter
+      if (req.query.sizes) {
+        const sizesArray = req.query.sizes.split(',').map(s => s.trim()).filter(Boolean);
+        if (sizesArray.length > 0) {
+          query.sizes = { $in: sizesArray };
+        }
+      }
+
+      // Color Filter
+      if (req.query.colors) {
+        const colorsArray = req.query.colors.split(',').map(c => c.trim()).filter(Boolean);
+        if (colorsArray.length > 0) {
+          query.colors = { $in: colorsArray };
+        }
+      }
+
+      // Availability Filter
+      if (req.query.inStock) {
+        query.inStock = req.query.inStock === 'true';
+      }
+
+      // Price Filter
+      if (req.query.priceMin || req.query.priceMax) {
+        query.price = {};
+        if (req.query.priceMin) query.price.$gte = parseFloat(req.query.priceMin);
+        if (req.query.priceMax) query.price.$lte = parseFloat(req.query.priceMax);
+      }
+
+      // Sort Option
+      let sortObj = { createdAt: -1 };
+      if (req.query.sort) {
+        if (req.query.sort === 'price_asc') {
+          sortObj = { price: 1 };
+        } else if (req.query.sort === 'price_desc') {
+          sortObj = { price: -1 };
+        } else if (req.query.sort === 'newest') {
+          sortObj = { createdAt: -1 };
+        }
+      }
+
+      const products = await Product.find(query)
+        .skip(skip)
+        .limit(limit)
+        .sort(sortObj);
+
+      const total = await Product.countDocuments(query);
+
+      return res.json({
+        success: true,
+        products,
+        pageTitle: 'All Products',
+        pagination: {
+          currentPage: page,
+          totalPages: Math.ceil(total / limit),
+          totalProducts: total,
+          limit
+        },
+        total
+      });
+    }
+
     // Find the menu item by slug
     const menuItem = await MenuItem.findOne({ slug: menuSlug, isActive: true });
 

@@ -1,4 +1,29 @@
+import { useState, useEffect } from 'react';
+import { settingsApi } from '../utils/api';
+
 const Shipping = () => {
+  const [shippingFee, setShippingFee] = useState(150);
+  const [shippingThreshold, setShippingThreshold] = useState(2000);
+
+  useEffect(() => {
+    const fetchShippingSettings = async () => {
+      try {
+        const res = await settingsApi.getSettings();
+        if (res.success && res.data) {
+          if (res.data.shippingFee !== undefined) {
+            setShippingFee(Number(res.data.shippingFee));
+          }
+          if (res.data.shippingThreshold !== undefined) {
+            setShippingThreshold(Number(res.data.shippingThreshold));
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching shipping settings:', err);
+      }
+    };
+    fetchShippingSettings();
+  }, []);
+
   return (
     <div className="min-h-screen bg-white font-['Poppins'] text-[#212121]">
       <div className="mx-auto max-w-[780px] px-6 py-16 md:py-24">
@@ -23,10 +48,10 @@ const Shipping = () => {
               1. Domestic Shipping Costs
             </h2>
             <p className="mb-3">
-              We offer free standard shipping on all domestic orders across India that have a total cart value of <strong>₹2,000 or above</strong>.
+              We offer free standard shipping on all domestic orders across India that have a total cart value of <strong>₹{shippingThreshold.toLocaleString('en-IN')} or above</strong>.
             </p>
             <p>
-              For domestic orders below ₹2,000, a flat shipping and handling fee of <strong>₹150</strong> is charged at checkout.
+              For domestic orders below ₹{shippingThreshold.toLocaleString('en-IN')}, a flat shipping and handling fee of <strong>₹{shippingFee}</strong> is charged at checkout.
             </p>
           </div>
 

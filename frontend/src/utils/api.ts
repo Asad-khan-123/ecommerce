@@ -93,11 +93,90 @@ export const menuApi = {
   }
 };
 
+// Image Compression Helper (Canvas-based)
+const compressImage = (file: File, maxWidth = 1200, quality = 0.85): Promise<File> => {
+  return new Promise((resolve) => {
+    // Only compress image formats (exclude svgs, etc.)
+    if (!file.type.startsWith('image/') || file.type === 'image/svg+xml') {
+      resolve(file);
+      return;
+    }
+
+    // Skip compression if the file is already small (e.g. under 500KB)
+    if (file.size < 500 * 1024) {
+      resolve(file);
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target?.result as string;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        // Proportional resize to maxWidth
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          resolve(file);
+          return;
+        }
+
+        const mimeType = file.type;
+        const exportType = mimeType === 'image/png' ? 'image/png' : 'image/jpeg';
+
+        ctx.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              resolve(file);
+              return;
+            }
+            const dotIndex = file.name.lastIndexOf('.');
+            const baseName = dotIndex !== -1 ? file.name.substring(0, dotIndex) : file.name;
+            const extension = mimeType === 'image/png' ? 'png' : 'jpg';
+            
+            const compressedFile = new File([blob], `${baseName}.${extension}`, {
+              type: exportType,
+              lastModified: Date.now()
+            });
+            resolve(compressedFile);
+          },
+          exportType,
+          quality
+        );
+      };
+      img.onerror = () => resolve(file);
+    };
+    reader.onerror = () => resolve(file);
+  });
+};
+
 // Upload API
 export const uploadApi = {
   uploadImage: async (file: File) => {
+    let fileToUpload = file;
+    try {
+      fileToUpload = await compressImage(file);
+      console.log(`Image upload: Original size: ${(file.size / 1024).toFixed(1)}KB, Uploading size: ${(fileToUpload.size / 1024).toFixed(1)}KB`);
+    } catch (e) {
+      console.error('Image compression failed, using original file:', e);
+    }
+
     const formData = new FormData();
-    formData.append('image', file);
+    formData.append('image', fileToUpload);
 
     const token = localStorage.getItem('authToken');
     const response = await fetch(`${API_BASE_URL}/upload/admin/upload`, {

@@ -13,6 +13,7 @@ const storage = CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: 'ecommerce/menu',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
     resource_type: 'auto'
   }
 });

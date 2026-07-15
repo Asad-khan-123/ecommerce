@@ -113,6 +113,8 @@ const Home = () => {
                   <img 
                     src={activeBanner.desktopImage} 
                     alt="Hero Banner" 
+                    fetchPriority="high"
+                    loading="eager"
                     className="w-full h-full object-cover"
                   />
                 </picture>
@@ -133,6 +135,8 @@ const Home = () => {
               <img 
                 src={activeBanner.desktopImage} 
                 alt="Hero Banner" 
+                fetchPriority="high"
+                loading="eager"
                 className="w-full h-full object-cover"
               />
             </picture>
@@ -294,7 +298,7 @@ const Home = () => {
         <p className="mx-auto max-w-xl text-[clamp(1.1rem,2.5vw,1.6rem)] font-light leading-relaxed text-white/80">
           "I Am Trouble has always been the spirit of the brand.
           <br />
-          As the level evolves Every I AM TROUBLE piece carries the signature of its creator."
+          As the label evolves Every I AM TROUBLE piece carries the signature of its creator."
         </p>
       </section>
 

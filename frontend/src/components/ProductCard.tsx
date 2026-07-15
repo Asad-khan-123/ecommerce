@@ -39,6 +39,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
           <img
             src={displayImage}
             alt={product.title}
+            loading="lazy"
             className="h-full w-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-105"
             onError={() => setImgError(true)}
           />

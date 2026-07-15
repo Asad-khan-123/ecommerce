@@ -1,4 +1,5 @@
 import MenuItem from '../models/menuItem.js';
+import { deleteFromCloudinary } from '../utils/cloudinary.js';
 
 export const getMenuItems = async (req, res) => {
   try {
@@ -85,7 +86,18 @@ export const updateMenuItem = async (req, res) => {
     menuItem.order = order !== undefined ? order : menuItem.order;
     menuItem.isActive = isActive !== undefined ? isActive : menuItem.isActive;
     menuItem.columns = columns !== undefined ? columns : menuItem.columns;
-    menuItem.images = images !== undefined ? images : menuItem.images;
+    
+    if (images !== undefined) {
+      const oldImageUrls = menuItem.images?.map(img => img.imageUrl).filter(Boolean) || [];
+      const newImageUrls = images?.map(img => img.imageUrl).filter(Boolean) || [];
+      const removedImageUrls = oldImageUrls.filter(url => !newImageUrls.includes(url));
+      
+      if (removedImageUrls.length > 0) {
+        await deleteFromCloudinary(removedImageUrls);
+      }
+      menuItem.images = images;
+    }
+    
     menuItem.updatedAt = Date.now();
 
     await menuItem.save();
@@ -106,10 +118,18 @@ export const deleteMenuItem = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const menuItem = await MenuItem.findByIdAndDelete(id);
+    const menuItem = await MenuItem.findById(id);
     if (!menuItem) {
       return res.status(404).json({ success: false, message: 'Menu item not found' });
     }
+
+    // Delete associated images from Cloudinary
+    const imageUrls = menuItem.images?.map(img => img.imageUrl).filter(Boolean) || [];
+    if (imageUrls.length > 0) {
+      await deleteFromCloudinary(imageUrls);
+    }
+
+    await MenuItem.findByIdAndDelete(id);
 
     res.status(200).json({
       success: true,

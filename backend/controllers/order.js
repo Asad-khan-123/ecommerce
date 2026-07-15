@@ -4,10 +4,15 @@ import Product from '../models/product.js';
 import Razorpay from 'razorpay';
 import crypto from 'crypto';
 import ENV from '../utils/env.js';
+import Setting from '../models/settings.js';
 
 // ── Create a new order (user) ────────────────────────────────────────────────
 export const createOrder = async (req, res) => {
   try {
+    if (req.user && req.user.role === 'admin') {
+      return res.status(400).json({ success: false, message: 'Administrators are not allowed to purchase products.' });
+    }
+
     const { items, shippingAddress, paymentId, paymentStatus, subtotal, shippingCost, totalPrice } = req.body;
 
     if (!items || items.length === 0) {
@@ -166,6 +171,10 @@ const getRazorpayInstance = () => {
 // ── Create a Razorpay Order (Secure server-side calculation) ─────────────────
 export const createRazorpayOrder = async (req, res) => {
   try {
+    if (req.user && req.user.role === 'admin') {
+      return res.status(400).json({ success: false, message: 'Administrators are not allowed to purchase products.' });
+    }
+
     const { items, shippingAddress } = req.body;
 
     if (!items || items.length === 0) {
@@ -192,7 +201,15 @@ export const createRazorpayOrder = async (req, res) => {
       calculatedSubtotal += product.price * item.quantity;
     }
 
-    const calculatedShippingCost = calculatedSubtotal >= 2000 ? 0 : 150;
+    const settings = await Setting.find();
+    const settingsMap = {};
+    settings.forEach(s => {
+      settingsMap[s.key] = s.value;
+    });
+    const shippingFee = settingsMap.shippingFee ? parseFloat(settingsMap.shippingFee) : 150;
+    const shippingThreshold = settingsMap.shippingThreshold ? parseFloat(settingsMap.shippingThreshold) : 2000;
+
+    const calculatedShippingCost = calculatedSubtotal >= shippingThreshold ? 0 : shippingFee;
     const calculatedTotal = calculatedSubtotal + calculatedShippingCost;
 
     // Razorpay amount is in paise (INR * 100)
@@ -271,7 +288,15 @@ export const verifyRazorpayPayment = async (req, res) => {
       });
     }
 
-    const calculatedShippingCost = calculatedSubtotal >= 2000 ? 0 : 150;
+    const settings = await Setting.find();
+    const settingsMap = {};
+    settings.forEach(s => {
+      settingsMap[s.key] = s.value;
+    });
+    const shippingFee = settingsMap.shippingFee ? parseFloat(settingsMap.shippingFee) : 150;
+    const shippingThreshold = settingsMap.shippingThreshold ? parseFloat(settingsMap.shippingThreshold) : 2000;
+
+    const calculatedShippingCost = calculatedSubtotal >= shippingThreshold ? 0 : shippingFee;
     const calculatedTotal = calculatedSubtotal + calculatedShippingCost;
 
     // Create the confirmed paid order in the database
@@ -300,5 +325,22 @@ export const verifyRazorpayPayment = async (req, res) => {
   } catch (error) {
     console.error('verifyRazorpayPayment Error:', error);
     return res.status(500).json({ success: false, message: 'Payment verification failed', error: error.message });
+  }
+};
+
+// ── Delete Order (Admin only) ──────────────────────────────────────────────────
+export const deleteOrder = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const order = await Order.findByIdAndDelete(id);
+
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+
+    res.status(200).json({ success: true, message: 'Order deleted successfully' });
+  } catch (error) {
+    console.error('deleteOrder Error:', error);
+    res.status(500).json({ success: false, message: 'Failed to delete order', error: error.message });
   }
 };

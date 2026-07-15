@@ -63,6 +63,8 @@ export const BannerManager: React.FC = () => {
   const [defaultSizeModel, setDefaultSizeModel] = useState('');
   const [defaultFit, setDefaultFit] = useState('');
   const [defaultShipping, setDefaultShipping] = useState('');
+  const [shippingFee, setShippingFee] = useState('150');
+  const [shippingThreshold, setShippingThreshold] = useState('2000');
   const [savingSettings, setSavingSettings] = useState(false);
 
   // Brand Media Videos state (dynamic array of videos)
@@ -116,6 +118,8 @@ export const BannerManager: React.FC = () => {
         setDefaultSizeModel(settingsRes.data.sizeModel || '');
         setDefaultFit(settingsRes.data.fitConstruction || '');
         setDefaultShipping(settingsRes.data.shippingReturns || '');
+        setShippingFee(settingsRes.data.shippingFee || '150');
+        setShippingThreshold(settingsRes.data.shippingThreshold || '2000');
         if (settingsRes.data.brandVideos) {
           try {
             const parsed = JSON.parse(settingsRes.data.brandVideos);
@@ -147,7 +151,9 @@ export const BannerManager: React.FC = () => {
         sizeModel: defaultSizeModel,
         fitConstruction: defaultFit,
         shippingReturns: defaultShipping,
-        brandVideos: JSON.stringify(brandVideos)
+        brandVideos: JSON.stringify(brandVideos),
+        shippingFee,
+        shippingThreshold
       };
       const res = await settingsApi.saveSettings(payload);
       if (res.success) {
@@ -727,6 +733,55 @@ export const BannerManager: React.FC = () => {
               <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin mr-2" />
             ) : null}
             Save Accordion Defaults
+          </button>
+        </div>
+      </div>
+
+      {/* Shipping & Delivery Settings Section */}
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mt-6">
+        <div>
+          <h2 className="text-lg font-semibold text-[#212121]">Shipping & Delivery Settings</h2>
+          <p className="text-xs text-gray-500 mt-1">
+            Configure the default shipping cost and the minimum purchase threshold for free shipping.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 font-['Poppins']">
+          {/* Shipping Fee */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-medium text-gray-700">Shipping Fee (₹)</label>
+            <input
+              type="number"
+              value={shippingFee}
+              onChange={(e) => setShippingFee(e.target.value)}
+              placeholder="e.g. 150"
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-[#212121] focus:border-[#212121]"
+            />
+          </div>
+
+          {/* Shipping Free Threshold */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-medium text-gray-700">Free Shipping Minimum Threshold (₹)</label>
+            <input
+              type="number"
+              value={shippingThreshold}
+              onChange={(e) => setShippingThreshold(e.target.value)}
+              placeholder="e.g. 2000"
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-[#212121] focus:border-[#212121]"
+            />
+          </div>
+        </div>
+
+        <div className="flex justify-end mt-6 pt-4 border-t border-gray-100">
+          <button
+            onClick={handleSaveSettings}
+            disabled={savingSettings}
+            className="flex items-center justify-center px-6 py-2.5 bg-[#212121] hover:bg-black text-white text-xs font-semibold uppercase tracking-wider rounded-lg disabled:opacity-50 transition-colors"
+          >
+            {savingSettings ? (
+              <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin mr-2" />
+            ) : null}
+            Save Shipping Settings
           </button>
         </div>
       </div>

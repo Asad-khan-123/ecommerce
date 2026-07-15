@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
-import { orderApi, productApi } from '../utils/api';
+import { orderApi, productApi, settingsApi } from '../utils/api';
 import { ChevronRight, Lock } from 'lucide-react';
 
 interface OrderItem {
@@ -59,6 +59,8 @@ const Checkout: React.FC = () => {
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
   const [loadingProduct, setLoadingProduct] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [shippingFee, setShippingFee] = useState(150);
+  const [shippingThreshold, setShippingThreshold] = useState(2000);
 
   // Shipping form state
   const [form, setForm] = useState({
@@ -72,6 +74,26 @@ const Checkout: React.FC = () => {
     country: 'India'
   });
   const [errors, setErrors] = useState<Partial<typeof form>>({});
+
+  // Fetch shipping settings
+  useEffect(() => {
+    const fetchShippingSettings = async () => {
+      try {
+        const res = await settingsApi.getSettings();
+        if (res.success && res.data) {
+          if (res.data.shippingFee !== undefined) {
+            setShippingFee(Number(res.data.shippingFee));
+          }
+          if (res.data.shippingThreshold !== undefined) {
+            setShippingThreshold(Number(res.data.shippingThreshold));
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching shipping settings:', err);
+      }
+    };
+    fetchShippingSettings();
+  }, []);
 
   // Redirect if not logged in
   useEffect(() => {
@@ -113,7 +135,7 @@ const Checkout: React.FC = () => {
   }, [source, buyNowProductId, cartItems]);
 
   const subtotal = orderItems.reduce((s, i) => s + i.price * i.quantity, 0);
-  const shippingCost = subtotal >= 2000 ? 0 : 150;
+  const shippingCost = subtotal >= shippingThreshold ? 0 : shippingFee;
   const totalPrice = subtotal + shippingCost;
 
   const setField = (key: keyof typeof form) => (val: string) => {
@@ -296,10 +318,7 @@ const Checkout: React.FC = () => {
 
             <div className="flex gap-4">
               <Field label="PIN Code" id="postalCode" value={form.postalCode} onChange={setField('postalCode')} placeholder="400001" required error={errors.postalCode} half />
-              <div className="flex-1 min-w-0">
-                <label className="block text-[10px] uppercase tracking-[0.18em] text-[#999] mb-1.5">Country</label>
-                <div className="w-full border border-[#D8D8D8] bg-[#F9F9F9] px-4 py-3 text-[12px] text-[#999] cursor-not-allowed">India</div>
-              </div>
+              <Field label="Country" id="country" value={form.country} onChange={setField('country')} placeholder="India" required error={errors.country} half />
             </div>
           </div>
 

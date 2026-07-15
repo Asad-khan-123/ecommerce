@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ChevronDown, Minus, Plus, ArrowLeft } from 'lucide-react';
+import sizeGuideImg from '../assets/sizeguide.jpeg';
 import { useProducts } from '../context/ProductContext';
 import type { Product } from '../context/ProductContext';
 import { useCart } from '../context/CartContext';
@@ -107,7 +108,7 @@ const Pdp = () => {
   const [submittingReview, setSubmittingReview] = useState(false);
   const [reviewError, setReviewError] = useState<string | null>(null);
   const [reviewSuccess, setReviewSuccess] = useState<string | null>(null);
-
+  const [showSizeGuide, setShowSizeGuide] = useState(false);
   /* Fetch product on slug change */
   useEffect(() => {
     if (!slug) return;
@@ -463,10 +464,44 @@ const Pdp = () => {
                 )}
               </div>
 
-              {/* Stock status */}
-              {/* <p className={`mt-1.5 text-[11px] tracking-wide ${product.inStock ? 'text-green-600' : 'text-red-500'}`}>
-                {product.inStock ? `In Stock${product.inventory > 0 ? ` — ${product.inventory} left` : ''}` : 'Out of Stock'}
-              </p> */}
+
+              {/* ── Size Guide ── */}
+<div className="mt-4">
+  <button
+    onClick={() => setShowSizeGuide(true)}
+    className="text-[11px] tracking-widest uppercase underline underline-offset-4 text-[#212121] hover:opacity-70 transition"
+  >
+    Size Guide
+  </button>
+</div>
+
+{/* ── Size Guide Modal ── */}
+{showSizeGuide && (
+  <div
+    className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+    onClick={() => setShowSizeGuide(false)}
+  >
+    <div
+      className="relative max-w-2xl w-full bg-white rounded shadow-lg overflow-hidden"
+      onClick={(e) => e.stopPropagation()}
+    >
+      {/* Close Button */}
+      <button
+        onClick={() => setShowSizeGuide(false)}
+        className="absolute right-3 top-3 text-2xl leading-none text-[#212121] hover:opacity-60 z-10"
+      >
+        ×
+      </button>
+
+      <img
+        src={sizeGuideImg}
+        alt="Size Guide"
+        className="w-full h-auto object-contain"
+      />
+    </div>
+  </div>
+)}
+
 
               {/* ── Variants ── */}
               <div className="mt-8 space-y-6">
