@@ -8,8 +8,26 @@ import { useState } from 'react';
 
 const Home = () => {
   const { products, loading, error, fetchProducts } = useProducts();
-  const [activeBanner, setActiveBanner] = useState<any>(null);
-  const [highlights, setHighlights] = useState<any[]>([]);
+  
+  // Initialize states with cached data to avoid render-blocking API waterfalls
+  const [activeBanner, setActiveBanner] = useState<any>(() => {
+    try {
+      const cached = localStorage.getItem('cachedActiveBanner');
+      return cached ? JSON.parse(cached) : null;
+    } catch (e) {
+      return null;
+    }
+  });
+
+  const [highlights, setHighlights] = useState<any[]>(() => {
+    try {
+      const cached = localStorage.getItem('cachedHighlights');
+      return cached ? JSON.parse(cached) : [];
+    } catch (e) {
+      return [];
+    }
+  });
+
   const [brandVideos, setBrandVideos] = useState<any[]>([]);
 
   useEffect(() => {
@@ -19,6 +37,7 @@ const Home = () => {
         const res = await bannerApi.getActiveBanner();
         if (res.success && res.data) {
           setActiveBanner(res.data);
+          localStorage.setItem('cachedActiveBanner', JSON.stringify(res.data));
         }
       } catch (err) {
         console.error('Failed to fetch banner', err);
@@ -29,6 +48,7 @@ const Home = () => {
         const res = await bannerApi.getHighlights();
         if (res.success && res.data) {
           setHighlights(res.data);
+          localStorage.setItem('cachedHighlights', JSON.stringify(res.data));
         }
       } catch (err) {
         console.error('Failed to fetch highlights', err);

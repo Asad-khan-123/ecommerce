@@ -144,7 +144,7 @@ const Pdp = () => {
         if (product.menuItem) {
           const mId = typeof product.menuItem === 'object' && product.menuItem !== null
             ? product.menuItem._id
-            : product.menuItem;
+            : String(product.menuItem || '');
           params.append('menuItem', mId);
         }
         if (product.subMenuItemId) {
@@ -164,7 +164,7 @@ const Pdp = () => {
         if (list.length < 4 && product.menuItem) {
           const mId = typeof product.menuItem === 'object' && product.menuItem !== null
             ? product.menuItem._id
-            : product.menuItem;
+            : String(product.menuItem || '');
           
           const fallbackParams = new URLSearchParams();
           fallbackParams.append('menuItem', mId);

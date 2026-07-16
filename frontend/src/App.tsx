@@ -11,28 +11,51 @@ import AdminLayout from './components/AdminLayout';
 import Home from './pages/Home'; // Keep Home static for instant viewport load
 import ScrollToTop from './components/ScrollToTop';
 
+// Helper to automatically reload the page if a lazy chunk load fails (common after a new deployment)
+const safeLazy = (importFunc: () => Promise<{ default: any }>) => {
+  return lazy(() => 
+    importFunc().catch((err) => {
+      console.warn("Dynamic module import failed, forcing page reload:", err);
+      window.location.reload();
+      return { default: () => null };
+    })
+  );
+};
+
+const safeLazyNamed = (importFunc: () => Promise<any>, name: string) => {
+  return lazy(() => 
+    importFunc()
+      .then(m => ({ default: m[name] }))
+      .catch((err) => {
+        console.warn(`Dynamic module import failed for ${name}, forcing page reload:`, err);
+        window.location.reload();
+        return { default: () => null };
+      })
+  );
+};
+
 // Lazy Loaded Public Pages
-const Login = lazy(() => import('./pages/Login'));
-const Pdp = lazy(() => import('./pages/Pdp'));
-const Collection = lazy(() => import('./pages/Collection'));
-const Account = lazy(() => import('./pages/Account'));
-const Checkout = lazy(() => import('./pages/Checkout'));
-const OrderSuccess = lazy(() => import('./pages/OrderSuccess'));
-const Faq = lazy(() => import('./pages/Faq'));
-const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
-const TermsOfService = lazy(() => import('./pages/TermsOfService'));
-const About = lazy(() => import('./pages/About'));
-const Shipping = lazy(() => import('./pages/Shipping'));
-const RefundPolicy = lazy(() => import('./pages/RefundPolicy'));
-const PaymentsPage = lazy(() => import('./pages/PaymentsPage'));
-const Contact = lazy(() => import('./pages/Contact'));
+const Login = safeLazy(() => import('./pages/Login'));
+const Pdp = safeLazy(() => import('./pages/Pdp'));
+const Collection = safeLazy(() => import('./pages/Collection'));
+const Account = safeLazy(() => import('./pages/Account'));
+const Checkout = safeLazy(() => import('./pages/Checkout'));
+const OrderSuccess = safeLazy(() => import('./pages/OrderSuccess'));
+const Faq = safeLazy(() => import('./pages/Faq'));
+const PrivacyPolicy = safeLazy(() => import('./pages/PrivacyPolicy'));
+const TermsOfService = safeLazy(() => import('./pages/TermsOfService'));
+const About = safeLazy(() => import('./pages/About'));
+const Shipping = safeLazy(() => import('./pages/Shipping'));
+const RefundPolicy = safeLazy(() => import('./pages/RefundPolicy'));
+const PaymentsPage = safeLazy(() => import('./pages/PaymentsPage'));
+const Contact = safeLazy(() => import('./pages/Contact'));
 
 // Lazy Loaded Admin Pages
-const Dashboard = lazy(() => import('./pages/admin/Dashboard'));
-const MenuManager = lazy(() => import('./pages/admin/MenuManager').then(m => ({ default: m.MenuManager })));
-const BannerManager = lazy(() => import('./pages/admin/BannerManager').then(m => ({ default: m.BannerManager })));
-const ProductManager = lazy(() => import('./pages/admin/ProductManager').then(m => ({ default: m.ProductManager })));
-const OrderManager = lazy(() => import('./pages/admin/OrderManager').then(m => ({ default: m.OrderManager })));
+const Dashboard = safeLazy(() => import('./pages/admin/Dashboard'));
+const MenuManager = safeLazyNamed(() => import('./pages/admin/MenuManager'), 'MenuManager');
+const BannerManager = safeLazyNamed(() => import('./pages/admin/BannerManager'), 'BannerManager');
+const ProductManager = safeLazyNamed(() => import('./pages/admin/ProductManager'), 'ProductManager');
+const OrderManager = safeLazyNamed(() => import('./pages/admin/OrderManager'), 'OrderManager');
 
 /* Shared layout for all public-facing pages: Navbar + content + Newsletter + Footer */
 const PublicLayout = () => {

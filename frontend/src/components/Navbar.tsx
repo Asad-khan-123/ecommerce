@@ -396,6 +396,8 @@ const Navbar = () => {
               <img 
                 src={logoPng} 
                 alt="I AM TROUBLE BY KC" 
+                width="200"
+                height="72"
                 className="h-14 md:h-20 w-auto max-h-[72px] object-contain transition-all duration-300 hover:scale-105"
               />
             </Link>
